@@ -1,0 +1,14 @@
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\bin\Debug\net8.0\Collection_Tutoriral.exe
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\bin\Debug\net8.0\Collection_Tutoriral.deps.json
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\bin\Debug\net8.0\Collection_Tutoriral.runtimeconfig.json
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\bin\Debug\net8.0\Collection_Tutoriral.dll
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\bin\Debug\net8.0\Collection_Tutoriral.pdb
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.AssemblyInfoInputs.cache
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.AssemblyInfo.cs
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.csproj.CoreCompileInputs.cache
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.dll
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\refint\Collection_Tutoriral.dll
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.pdb
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\Collection_Tutoriral.genruntimeconfig.cache
+C:\Users\deptraitoc2mai\source\repos\Collection_Tutoriral\Collection_Tutoriral\obj\Debug\net8.0\ref\Collection_Tutoriral.dll

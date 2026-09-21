@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\deptraitoc2mai\\source\\repos\\CSharpProject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{81F8EA41-2FC9-2E9D-1746-0108DBF00034}|CSharpProject\\CSharpProject.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\csharpproject\\csharpproject\\person.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81F8EA41-2FC9-2E9D-1746-0108DBF00034}|CSharpProject\\CSharpProject.csproj|solutionrelative:csharpproject\\person.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81F8EA41-2FC9-2E9D-1746-0108DBF00034}|CSharpProject\\CSharpProject.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\csharpproject\\csharpproject\\derivedclass .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81F8EA41-2FC9-2E9D-1746-0108DBF00034}|CSharpProject\\CSharpProject.csproj|solutionrelative:csharpproject\\derivedclass .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Person.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\CSharpProject\\CSharpProject\\Person.cs",
+              "RelativeDocumentMoniker": "CSharpProject\\Person.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\CSharpProject\\CSharpProject\\Person.cs*",
+              "RelativeToolTip": "CSharpProject\\Person.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-21T04:16:14.163Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DerivedClass .cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\CSharpProject\\CSharpProject\\DerivedClass .cs",
+              "RelativeDocumentMoniker": "CSharpProject\\DerivedClass .cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\CSharpProject\\CSharpProject\\DerivedClass .cs",
+              "RelativeToolTip": "CSharpProject\\DerivedClass .cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-21T04:15:00.76Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

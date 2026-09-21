@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CSharpProject</name>
+    </assembly>
+    <members>
+        <member name="P:CSharpProject.Person.Age">
+            <summary>
+            Gets or sets the age of the person.
+            </summary>
+        </member>
+        <member name="M:CSharpProject.Person.checkString">
+            <summary>
+            Other properties, methods, events...
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

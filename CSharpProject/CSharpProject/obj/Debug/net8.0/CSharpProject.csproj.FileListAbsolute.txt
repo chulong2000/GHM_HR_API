@@ -1,0 +1,16 @@
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.AssemblyInfoInputs.cache
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.AssemblyInfo.cs
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.csproj.CoreCompileInputs.cache
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.exe
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.deps.json
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.runtimeconfig.json
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.dll
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.pdb
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.dll
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\refint\CSharpProject.dll
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.pdb
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.genruntimeconfig.cache
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\ref\CSharpProject.dll
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\bin\Debug\net8.0\CSharpProject.xml
+C:\Users\deptraitoc2mai\source\repos\CSharpProject\CSharpProject\obj\Debug\net8.0\CSharpProject.xml
