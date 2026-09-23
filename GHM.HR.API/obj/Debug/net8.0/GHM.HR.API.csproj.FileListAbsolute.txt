@@ -1,0 +1,9 @@
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.csproj.AssemblyReference.cache
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.AssemblyInfoInputs.cache
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.AssemblyInfo.cs
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.csproj.CoreCompileInputs.cache
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\deptraitoc2mai\source\repos\GHM.HR.API\obj\Debug\net8.0\GHM.HR.API.sourcelink.json

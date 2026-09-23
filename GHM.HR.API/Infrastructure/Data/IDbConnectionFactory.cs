@@ -7,22 +7,17 @@ namespace GHM.HR.API.Infrastructure.Data
     {
         /// <summary>Open a connection to a statically-configured database (QLPK main or HR).</summary>
         Task<SqlConnection> CreateAsync(string name);
-
-        /// <summary>Open a connection to the HIS database of a specific company.</summary>
-        Task<SqlConnection> CreateForCompanyAsync(string companyId);
     }
 
     public sealed class SqlConnectionFactory : IDbConnectionFactory
     {
-        private readonly IReadOnlyDictionary<string, string> _connectionStrings;
-        private readonly IConnectionProvider _hisConnectionProvider;
+        private readonly IReadOnlyDictionary<string, string?> _connectionStrings;
+ 
 
         public SqlConnectionFactory(
-            IReadOnlyDictionary<string, string> connectionStrings,
-            IConnectionProvider hisConnectionProvider)
+            IReadOnlyDictionary<string, string?> connectionStrings)
         {
             _connectionStrings = connectionStrings;
-            _hisConnectionProvider = hisConnectionProvider;
         }
 
         public async Task<SqlConnection> CreateAsync(string name)
@@ -35,14 +30,6 @@ namespace GHM.HR.API.Infrastructure.Data
             return connection;
         }
 
-        public async Task<SqlConnection> CreateForCompanyAsync(string companyId)
-        {
-            // Resolves (and caches) the company's HIS connection string; throws if none configured.
-            var connectionString = await _hisConnectionProvider.GetConnectionStringAsync(companyId);
-
-            var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync();
-            return connection;
-        }
+     
     }
 }

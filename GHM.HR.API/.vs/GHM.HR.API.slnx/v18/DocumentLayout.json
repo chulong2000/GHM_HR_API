@@ -3,6 +3,54 @@
   "WorkspaceRootPath": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\service\\departmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\service\\departmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\autofacmodules\\validationmodule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\autofacmodules\\validationmodule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\autofacmodules\\applicationmodules.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\autofacmodules\\applicationmodules.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\viewmodels\\departmentdetailviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\viewmodels\\departmentdetailviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\irepository\\idepartmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\irepository\\idepartmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\validations\\departmentmetavalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\validations\\departmentmetavalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\resources\\ghmhrresource.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\resources\\ghmhrresource.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\modelmetas\\departmentmeta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\modelmetas\\departmentmeta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\iservices\\idepartmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\iservices\\idepartmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\repository\\departmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\repository\\departmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\data\\idbsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\data\\idbsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,16 +59,20 @@
       "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\data\\idbconnectionfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\iproviders\\iconnectionprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\iproviders\\iconnectionprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\infrastructure\\data\\dbconnectionnames.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:infrastructure\\data\\dbconnectionnames.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\ghm.hr.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:ghm.hr.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|c:\\users\\deptraitoc2mai\\source\\repos\\ghm.hr.api\\domain\\iproviders\\iconnectionprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9064E953-C215-A41D-DEE9-64CF0D05A5CA}|GHM.HR.API.csproj|solutionrelative:domain\\iproviders\\iconnectionprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +82,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,7 +90,228 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Department.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\Models\\Department.cs",
+              "RelativeDocumentMoniker": "Domain\\Models\\Department.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\Models\\Department.cs",
+              "RelativeToolTip": "Domain\\Models\\Department.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAcAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T03:41:47.837Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DepartmentDetailViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\ViewModels\\DepartmentDetailViewModel.cs",
+              "RelativeDocumentMoniker": "Domain\\ViewModels\\DepartmentDetailViewModel.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\ViewModels\\DepartmentDetailViewModel.cs",
+              "RelativeToolTip": "Domain\\ViewModels\\DepartmentDetailViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T03:54:40.671Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "ApplicationModules.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\AutofacModules\\ApplicationModules.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\AutofacModules\\ApplicationModules.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\AutofacModules\\ApplicationModules.cs",
+              "RelativeToolTip": "Infrastructure\\AutofacModules\\ApplicationModules.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAA5wCgAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T02:49:02.088Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DepartmentService.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Service\\DepartmentService.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Service\\DepartmentService.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Service\\DepartmentService.cs",
+              "RelativeToolTip": "Infrastructure\\Service\\DepartmentService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T04:43:42.17Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DepartmentMetaValidator.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Validations\\DepartmentMetaValidator.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Validations\\DepartmentMetaValidator.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Validations\\DepartmentMetaValidator.cs",
+              "RelativeToolTip": "Infrastructure\\Validations\\DepartmentMetaValidator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T10:31:25.459Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IDepartmentRepository.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\IRepository\\IDepartmentRepository.cs",
+              "RelativeDocumentMoniker": "Domain\\IRepository\\IDepartmentRepository.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\IRepository\\IDepartmentRepository.cs",
+              "RelativeToolTip": "Domain\\IRepository\\IDepartmentRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBEAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T03:56:54.966Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ValidationModule.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\AutofacModules\\ValidationModule.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\AutofacModules\\ValidationModule.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\AutofacModules\\ValidationModule.cs",
+              "RelativeToolTip": "Infrastructure\\AutofacModules\\ValidationModule.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAwAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T03:24:51.626Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "GhmHRResource.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\Resources\\GhmHRResource.cs",
+              "RelativeDocumentMoniker": "Domain\\Resources\\GhmHRResource.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\Resources\\GhmHRResource.cs",
+              "RelativeToolTip": "Domain\\Resources\\GhmHRResource.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T05:01:45.889Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "DepartmentMeta.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\ModelMetas\\DepartmentMeta.cs",
+              "RelativeDocumentMoniker": "Domain\\ModelMetas\\DepartmentMeta.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\ModelMetas\\DepartmentMeta.cs",
+              "RelativeToolTip": "Domain\\ModelMetas\\DepartmentMeta.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T03:47:42.894Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "IDepartmentService.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\IServices\\IDepartmentService.cs",
+              "RelativeDocumentMoniker": "Domain\\IServices\\IDepartmentService.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\IServices\\IDepartmentService.cs",
+              "RelativeToolTip": "Domain\\IServices\\IDepartmentService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T04:27:54.211Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-09-22T09:13:55.817Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "DepartmentRepository.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Repository\\DepartmentRepository.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Repository\\DepartmentRepository.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Repository\\DepartmentRepository.cs",
+              "RelativeToolTip": "Infrastructure\\Repository\\DepartmentRepository.cs",
+              "ViewState": "AgIAANUAAAAAAAAAAIAwwNIAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-23T04:09:00.082Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "IDbSession.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbSession.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Data\\IDbSession.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbSession.cs",
+              "RelativeToolTip": "Infrastructure\\Data\\IDbSession.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAswFAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-21T10:54:44.126Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IDbConnectionFactory.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbConnectionFactory.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Data\\IDbConnectionFactory.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbConnectionFactory.cs",
+              "RelativeToolTip": "Infrastructure\\Data\\IDbConnectionFactory.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAgwBEAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-21T10:53:57.828Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "DbConnectionNames.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\DbConnectionNames.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Data\\DbConnectionNames.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\DbConnectionNames.cs",
+              "RelativeToolTip": "Infrastructure\\Data\\DbConnectionNames.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-21T10:50:27.618Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "GHM.HR.API.csproj",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\GHM.HR.API.csproj",
+              "RelativeDocumentMoniker": "GHM.HR.API.csproj",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\GHM.HR.API.csproj",
+              "RelativeToolTip": "GHM.HR.API.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-09-23T02:46:00.208Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAIAwwBMAAABoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-22T08:13:29.976Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "IConnectionProvider.cs",
               "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Domain\\IProviders\\IConnectionProvider.cs",
               "RelativeDocumentMoniker": "Domain\\IProviders\\IConnectionProvider.cs",
@@ -48,57 +321,6 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-21T11:02:10.457Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "IDbSession.cs",
-              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbSession.cs",
-              "RelativeDocumentMoniker": "Infrastructure\\Data\\IDbSession.cs",
-              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbSession.cs",
-              "RelativeToolTip": "Infrastructure\\Data\\IDbSession.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAYwAkAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-21T10:54:44.126Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "IDbConnectionFactory.cs",
-              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbConnectionFactory.cs",
-              "RelativeDocumentMoniker": "Infrastructure\\Data\\IDbConnectionFactory.cs",
-              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\IDbConnectionFactory.cs",
-              "RelativeToolTip": "Infrastructure\\Data\\IDbConnectionFactory.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAuwBEAAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-21T10:53:57.828Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "DbConnectionNames.cs",
-              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\DbConnectionNames.cs",
-              "RelativeDocumentMoniker": "Infrastructure\\Data\\DbConnectionNames.cs",
-              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\Infrastructure\\Data\\DbConnectionNames.cs",
-              "RelativeToolTip": "Infrastructure\\Data\\DbConnectionNames.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-21T10:50:27.618Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "GHM.HR.API.csproj",
-              "DocumentMoniker": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\GHM.HR.API.csproj",
-              "RelativeDocumentMoniker": "GHM.HR.API.csproj",
-              "ToolTip": "C:\\Users\\deptraitoc2mai\\source\\repos\\GHM.HR.API\\GHM.HR.API.csproj",
-              "RelativeToolTip": "GHM.HR.API.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-09-21T10:47:22.048Z"
             }
           ]
         }

@@ -7,18 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="9.3.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
+    <PackageReference Include="Dapper" Version="2.1.86" />
+    <PackageReference Include="FluentValidation" Version="12.1.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Api\Controllers\" />
-    <Folder Include="Domain\IRepository\" />
-    <Folder Include="Domain\IServices\" />
-    <Folder Include="Domain\Models\" />
-    <Folder Include="Domain\ModelMetas\" />
-    <Folder Include="Domain\ViewModels\" />
     <Folder Include="Infrastructure\Database\" />
   </ItemGroup>
+
+
+<ItemGroup>
+	<ProjectReference Include="C:\Users\deptraitoc2mai\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+</ItemGroup>
 
 </Project>
