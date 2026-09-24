@@ -8,7 +8,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace GHM.HR.API.Api.Controllers
 {
-    [Authorize]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/Departments")]
@@ -98,14 +97,6 @@ namespace GHM.HR.API.Api.Controllers
         public async Task<IActionResult> GetDepartmentTreeACtive(string companyId)
         {
             var result = await _departmentService.GetFullTreeActiveAsync(CurrentUser.TenantId, companyId);
-            return Ok(result);
-        }
-
-        [SwaggerOperation(Summary = "Get department tree by user information.", Description = "Requires login verification!", OperationId = "GetDepartmentTreeByUser", Tags = new[] { "Department" })]
-        [Route("trees-user/{companyId}"), AcceptVerbs("GET")]
-        public async Task<IActionResult> GetDepartmentTreeByUser(string companyId)
-        {
-            var result = await _departmentService.GetFullTreeByUserAsync(CurrentUser.TenantId, companyId, CurrentUser.Id);
             return Ok(result);
         }
     }

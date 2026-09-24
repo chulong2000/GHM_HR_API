@@ -3,6 +3,7 @@ using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Infrastructure.Data;
 using GHM.Infrastructure.IServices;
 using GHM.Infrastructure.Services;
+using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 using Module = Autofac.Module;
 
@@ -19,6 +20,20 @@ namespace GHM.HR.API.Infrastructure.AutofacModules
         protected override void Load(ContainerBuilder builder)
         {
             var assembly = Assembly.GetExecutingAssembly();
+
+
+            builder.RegisterType<MemoryCache>().As<IMemoryCache>().SingleInstance();
+
+            // 1. Đăng ký BaseHttpClientService trước
+            builder.Register(c =>
+            {
+                var httpFactory = c.Resolve<IHttpClientFactory>();
+                var httpClient = httpFactory.CreateClient(); // tạo HttpClient từ factory
+                var logger = c.Resolve<ILogger<BaseHttpClientService>>();
+                return new BaseHttpClientService(httpClient, logger);
+            })
+            .As<IBaseHttpClientService>()
+            .InstancePerLifetimeScope();
 
             #region Repositories            
             builder.RegisterAssemblyTypes(assembly)

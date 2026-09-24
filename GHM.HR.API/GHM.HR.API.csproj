@@ -7,6 +7,60 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Api\Controllers\CompanyController.cs" Link="Api\Controllers\CompanyController.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Api\Controllers\PositionController.cs" Link="Api\Controllers\PositionController.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Api\Controllers\UserController.cs" Link="Api\Controllers\UserController.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\Gender.cs" Link="Domain\Constants\Gender.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\IdentityCardType.cs" Link="Domain\Constants\IdentityCardType.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\InsuranceStatus.cs" Link="Domain\Constants\InsuranceStatus.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\MarriedStatus.cs" Link="Domain\Constants\MarriedStatus.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\PersonnelStatus.cs" Link="Domain\Constants\PersonnelStatus.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\TypeMonth.cs" Link="Domain\Constants\TypeMonth.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\UserConstants.cs" Link="Domain\Constants\UserConstants.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\UserStatus.cs" Link="Domain\Constants\UserStatus.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Constants\WorkingForm.cs" Link="Domain\Constants\WorkingForm.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IRepository\ICompanyRepository.cs" Link="Domain\IRepository\ICompanyRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IRepository\IPositionRepository.cs" Link="Domain\IRepository\IPositionRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IRepository\IUserRepository.cs" Link="Domain\IRepository\IUserRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IServices\ICompanyService.cs" Link="Domain\IServices\ICompanyService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IServices\IPositionService.cs" Link="Domain\IServices\IPositionService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\IServices\IUserService.cs" Link="Domain\IServices\IUserService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ModelMetas\CompanyMeta.cs" Link="Domain\ModelMetas\CompanyMeta.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ModelMetas\PositionMeta.cs" Link="Domain\ModelMetas\PositionMeta.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ModelMetas\UserMeta.cs" Link="Domain\ModelMetas\UserMeta.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Models\Company.cs" Link="Domain\Models\Company.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Models\Position.cs" Link="Domain\Models\Position.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Models\User.cs" Link="Domain\Models\User.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Models\UserOtherInfo.cs" Link="Domain\Models\UserOtherInfo.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\Models\UserPaperInfo.cs" Link="Domain\Models\UserPaperInfo.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\CompanyDetailViewModel.cs" Link="Domain\ViewModels\CompanyDetailViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\CompanyLogoViewModel.cs" Link="Domain\ViewModels\CompanyLogoViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\CompanysDetailViewModel.cs" Link="Domain\ViewModels\CompanysDetailViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\CompanysSearchViewModel.cs" Link="Domain\ViewModels\CompanysSearchViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\CompanyUserViewModel.cs" Link="Domain\ViewModels\CompanyUserViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\MultipleCompanySearchViewModel.cs" Link="Domain\ViewModels\MultipleCompanySearchViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\PositionDetailViewModel.cs" Link="Domain\ViewModels\PositionDetailViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\PositionSearchViewModel.cs" Link="Domain\ViewModels\PositionSearchViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\TempTable.cs" Link="Domain\ViewModels\TempTable.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserBirthdayViewModel.cs" Link="Domain\ViewModels\UserBirthdayViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserDetailAllViewModel.cs" Link="Domain\ViewModels\UserDetailAllViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserDetailViewModel.cs" Link="Domain\ViewModels\UserDetailViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserProfileViewModel.cs" Link="Domain\ViewModels\UserProfileViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserSearchAllViewModel.cs" Link="Domain\ViewModels\UserSearchAllViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserSearchViewModel.cs" Link="Domain\ViewModels\UserSearchViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Domain\ViewModels\UserViewModel.cs" Link="Domain\ViewModels\UserViewModel.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Repository\CompanyRepository.cs" Link="Infrastructure\Repository\CompanyRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Repository\PositionRepository.cs" Link="Infrastructure\Repository\PositionRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Repository\UserRepository.cs" Link="Infrastructure\Repository\UserRepository.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Services\CompanyService.cs" Link="Infrastructure\Service\CompanyService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Services\PositionService.cs" Link="Infrastructure\Service\PositionService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Services\UserService.cs" Link="Infrastructure\Service\UserService.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Validations\CompanyMetaValidator.cs" Link="Infrastructure\Validations\CompanyMetaValidator.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Validations\PositionMetaValidator.cs" Link="Infrastructure\Validations\PositionMetaValidator.cs" />
+    <Compile Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.HR.Infrastructure\Validations\UserMetaValidator.cs" Link="Infrastructure\Validations\UserMetaValidator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="9.3.4" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
     <PackageReference Include="Dapper" Version="2.1.86" />
@@ -18,12 +72,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Domain\Constants\" />
     <Folder Include="Infrastructure\Database\" />
   </ItemGroup>
 
 
 <ItemGroup>
-	<ProjectReference Include="C:\Users\user\Documents\Source Code C#\Source Code HR_GHM\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+	<ProjectReference Include="C:\Users\deptraitoc2mai\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
 </ItemGroup>
 
 </Project>

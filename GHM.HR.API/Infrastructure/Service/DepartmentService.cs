@@ -38,9 +38,7 @@ namespace GHM.HR.API.Infrastructure.Service
 
         public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, DepartmentMeta departmentMeta)
         {
-            if (string.IsNullOrEmpty(tenantId))
-                return new ActionResultResponse<string>(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Tenant")));
-
+            
             var isNameExit = await _departmentRepository.CheckExistNameAsync(tenantId, departmentMeta.CompanyId, departmentMeta.Name?.Trim());
             if (isNameExit)
                 return new ActionResultResponse<string>(-5, _ghmHRResource.GetString(ErrorMessage.AlreadyExists, _ghmHRResource.GetString("Department-Name"), departmentMeta.Name));
@@ -62,13 +60,11 @@ namespace GHM.HR.API.Infrastructure.Service
             }
             var department = new Department
             {
-                ConcurrencyStamp = Guid.NewGuid().ToString(),
                 CompanyId = departmentMeta.CompanyId?.Trim(),
                 ParentId = departmentMeta.ParentId,
                 Name = departmentMeta.Name?.Trim(),
                 Description = departmentMeta.Description?.Trim(),
                 IsActive = departmentMeta.IsActive,
-                TenantId = tenantId,
                 CreateTime = DateTime.Now,
                 CreatorId = creatorId,
                 CreatorFullName = creatorFullName,
@@ -95,21 +91,13 @@ namespace GHM.HR.API.Infrastructure.Service
 
         public async Task<ActionResultResponse<string>> UpdateAsync(string tenantId, string lastUpdateUserId, string lastUpdateFullName, string lastUpdateAvatar, int id, DepartmentMeta departmentMeta)
         {
-            if (string.IsNullOrEmpty(tenantId))
-                return new ActionResultResponse<string>(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Tenant")));
-
+           
             var info = await _departmentRepository.GetInfoAsync(id);
             if (info == null)
                 return new ActionResultResponse<string>(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Department")));
 
-            if (info.TenantId != tenantId)
-                return new ActionResultResponse<string>(-3, _ghmHRResource.GetString(ErrorMessage.NotHavePermission));
-
             if (info.CompanyId != departmentMeta.CompanyId)
                 return new ActionResultResponse<string>(-3, _ghmHRResource.GetString(ErrorMessage.NotHavePermission));
-
-            if (info.ConcurrencyStamp != departmentMeta.ConcurrencyStamp)
-                return new ActionResultResponse<string>(-4, _ghmHRResource.GetString(ErrorMessage.AlreadyUpdatedByAnother));
 
             var isNameExit = await _departmentRepository.CheckExistsByNameAsync(tenantId, departmentMeta.CompanyId, id, departmentMeta.Name?.Trim());
             if (isNameExit)
@@ -193,9 +181,6 @@ namespace GHM.HR.API.Infrastructure.Service
             var info = await _departmentRepository.GetInfoAsync(id);
             if (info == null)
                 return new ActionResultResponse<DepartmentDetailViewModel>(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Department")));
-
-            if (info.TenantId != tenantId)
-                return new ActionResultResponse<DepartmentDetailViewModel>(-3, _ghmHRResource.GetString(ErrorMessage.NotHavePermission));
 
             //if (info.CompanyId != companyId)
             //    return new ActionResultResponse<DepartmentDetailViewModel>(-3, _ghmHRResource.GetString(ErrorMessage.NotHavePermission));
