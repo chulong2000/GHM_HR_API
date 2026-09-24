@@ -11,18 +11,19 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
     <PackageReference Include="Dapper" Version="2.1.86" />
     <PackageReference Include="FluentValidation" Version="12.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Api\Controllers\" />
     <Folder Include="Infrastructure\Database\" />
   </ItemGroup>
 
 
 <ItemGroup>
-	<ProjectReference Include="C:\Users\deptraitoc2mai\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+	<ProjectReference Include="C:\Users\user\Documents\Source Code C#\Source Code HR_GHM\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
 </ItemGroup>
 
 </Project>

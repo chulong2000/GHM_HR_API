@@ -3,6 +3,7 @@ using GHM.HR.API.Domain.Resources;
 using GHM.Infrastructure.Constants;
 using GHM.Infrastructure.IServices;
 using FluentValidation;
+using GHM.Infrastructure.Helpers.Validations;
 
 namespace GHM.HR.API.Infrastructure.Validations
 {

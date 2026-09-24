@@ -1,5 +1,8 @@
 ﻿using Autofac;
+using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Infrastructure.Data;
+using GHM.Infrastructure.IServices;
+using GHM.Infrastructure.Services;
 using System.Reflection;
 using Module = Autofac.Module;
 
@@ -29,6 +32,12 @@ namespace GHM.HR.API.Infrastructure.AutofacModules
             builder.RegisterAssemblyTypes(assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
+
+            #region Resources
+            builder.RegisterType<ResourceService<GhmHRResource>>()
+                .As<IResourceService<GhmHRResource>>()
+                .InstancePerLifetimeScope();
+            #endregion
 
             var appConnectionStrings = new Dictionary<string, string?>
             {

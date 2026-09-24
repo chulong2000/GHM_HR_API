@@ -2,10 +2,11 @@
 {
     public class DepartmentMeta
     {
-        public string CompanyId { get; set; } = null!;
+        public string CompanyId { get; set; }
         public int? ParentId { get; set; }
-        public string Name { get; set; } = null!;
-        public string? Description { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string ConcurrencyStamp { get; set; }
         public bool IsActive { get; set; }
         public int? AdvanceLeaveGranted { get; set; }
         public int? CompLeaveGranted { get; set; }

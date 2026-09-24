@@ -1,0 +1,175 @@
+[
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "InsertAsync",
+    "RelativePath": "api/v{version}/Departments",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "departmentMeta",
+        "Type": "GHM.HR.API.Domain.ModelMetas.DepartmentMeta",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "UpdateAsync",
+    "RelativePath": "api/v{version}/Departments/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "departmentMeta",
+        "Type": "GHM.HR.API.Domain.ModelMetas.DepartmentMeta",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "DetailAsync",
+    "RelativePath": "api/v{version}/Departments/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "DeleteAsync",
+    "RelativePath": "api/v{version}/Departments/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "GetAllDepartmentsAsync",
+    "RelativePath": "api/v{version}/Departments/get-all/{companyId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "GetDepartmentTreeACtive",
+    "RelativePath": "api/v{version}/Departments/trees-active/{companyId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "GetDepartmentTreeByUser",
+    "RelativePath": "api/v{version}/Departments/trees-user/{companyId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "GHM.HR.API.Api.Controllers.DepartmentController",
+    "Method": "GetDepartmentTree",
+    "RelativePath": "api/v{version}/Departments/trees/{companyId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
