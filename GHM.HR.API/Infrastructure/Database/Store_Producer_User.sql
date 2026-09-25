@@ -1,0 +1,1928 @@
+﻿USE [GHM_HR_New_Demo]
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_Code]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_Code]
+(
+	@TenantId AS VARCHAR(50) ='dae13df6-6720-4bda-a61c-61e5e948017e'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT [dbo].[fnUser_Code] (@TenantId) AS Code
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_CheckRoleQLTTTP]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================================================
+-- spUser_CheckRoleQLTTTP (bản đã sửa)
+--   [FIX-1] Block kiêm nhiệm: xét theo TỪNG công ty (không còn "tất-cả-hoặc-không").
+--   [FIX-2] Gộp nhiều vị trí kiêm nhiệm trong CÙNG 1 công ty về 1 membership
+--           (quyền theo (CompanyId, UserId) - khớp cách Core check quyền).
+--   [FIX-3] Dọn role kiêm nhiệm cũ theo từng công ty (đối xứng phần gán).
+--   [FIX-4] Thêm ngoặc đúng độ ưu tiên AND/OR ở block công ty chính.
+--   [FIX-5] INSERT cuối vào ResourceRoles ghi thêm DepartmentId, PositionId.
+-- =============================================================================
+CREATE PROCEDURE [dbo].[spUser_CheckRoleQLTTTP]
+(
+	@TenantId AS VARCHAR(50),
+	@CompanyId AS VARCHAR(50),
+	@UserId AS VARCHAR(50),
+	@ManagerUserId AS VARCHAR(50),
+	@ManagerUserIdOld AS VARCHAR(50) = NULL,
+	@CreatorId AS VARCHAR(50),
+	@CreatorFullName AS NVARCHAR(200)
+)
+AS
+BEGIN
+	CREATE TABLE #TempTable (
+		Id VARCHAR(50) COLLATE Vietnamese_CI_AS NULL,
+		TenantId VARCHAR(50) NULL,
+		CompanyId VARCHAR(50) NULL,
+		UserId VARCHAR(50) NULL,
+		DepartmentId INT NULL,
+		PositionId VARCHAR(50) NULL,
+		RoleId VARCHAR(50) NULL,
+		CreateTime DATETIME2 NULL,
+		CreatorId VARCHAR(50) NULL,
+		CreatorFullName NVARCHAR(200) NULL,
+		Type VARCHAR(50) NULL
+	);
+
+	SELECT Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName
+	INTO #RR
+	FROM dbo.ResourceRoles
+	WHERE TenantId = @TenantId AND RoleId = 'QLTT-TP'
+	AND (UserId = @UserId OR UserId = @ManagerUserId OR UserId = @ManagerUserIdOld)
+
+	-- ===== BLOCK 1: Công ty chính =====   bọc ngoặc
+	IF(EXISTS(SELECT 1 FROM dbo.Users U
+			  LEFT OUTER JOIN dbo.MultipleCompanys MC ON U.[CompanyId] = MC.CompanyId AND u.Id = MC.UserId
+			  WHERE U.[TenantId] = @TenantId AND U.[CompanyId] = @CompanyId
+			  AND ((U.Id = @UserId AND (U.PositionId = 'TP' OR MC.PositionId = 'TP')) OR U.ManagerUserId = @UserId)))
+	BEGIN
+		IF(NOT EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @UserId))
+			INSERT INTO #TempTable
+			(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+			SELECT LOWER(NEWID()), @TenantId, @CompanyId, @UserId, DepartmentId, PositionId, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+			FROM Users WHERE TenantId = @TenantId AND CompanyId = @CompanyId AND Id = @UserId
+	END
+	ELSE
+	BEGIN
+		IF(EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @UserId))
+			INSERT INTO #TempTable
+			(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+			SELECT Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, 'UNASSIGNED'
+			FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @UserId
+	END
+
+	-- =====  Công ty kiêm nhiệm =====  [
+	SELECT * INTO #MCIN
+	FROM dbo.MultipleCompanys
+	WHERE [TenantId] = @TenantId AND [CompanyId] <> @CompanyId AND UserId = @UserId
+
+	SELECT * INTO #MC FROM #MCIN
+	WHERE PositionId = 'TP'
+	UNION
+	SELECT #MCIN.* FROM #MCIN INNER JOIN dbo.Users U
+		ON #MCIN.UserId = U.ManagerUserId AND U.CompanyId = #MCIN.CompanyId AND U.TenantId = #MCIN.TenantId
+		WHERE U.IsDelete = 0
+
+	--  mỗi công ty 1 dòng đại diện, ưu tiên dòng PositionId='TP'
+	SELECT TenantId, CompanyId, UserId, DepartmentId, PositionId
+	INTO #MCDedup
+	FROM (
+		SELECT TenantId, CompanyId, UserId, DepartmentId, PositionId,
+			   ROW_NUMBER() OVER (PARTITION BY CompanyId
+								  ORDER BY CASE WHEN PositionId = 'TP' THEN 0 ELSE 1 END) AS rn
+		FROM #MC
+	) t
+	WHERE rn = 1
+
+	-- ASSIGN: từng cty kiêm nhiệm đủ điều kiện nhưng CHƯA có role
+	INSERT INTO #TempTable
+	(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+	SELECT LOWER(NEWID()), MC.TenantId, MC.CompanyId, MC.UserId, MC.DepartmentId, MC.PositionId, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+	FROM #MCDedup MC
+	WHERE NOT EXISTS (SELECT 1 FROM #RR WHERE #RR.CompanyId = MC.CompanyId AND #RR.UserId = @UserId)
+
+	-- UNASSIGN: role kiêm nhiệm cũ ở cty nay không còn đủ điều kiện
+	INSERT INTO #TempTable
+	(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+	SELECT Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, 'UNASSIGNED'
+	FROM #RR
+	WHERE #RR.UserId = @UserId AND #RR.CompanyId <> @CompanyId
+	AND NOT EXISTS (SELECT 1 FROM #MCDedup WHERE #MCDedup.CompanyId = #RR.CompanyId)
+
+	-- ===== BLOCK 3: Quản lý trực tiếp (giữ nguyên logic gốc) =====
+	IF(ISNULL(@ManagerUserIdOld,'') = ISNULL(@ManagerUserId,''))
+	BEGIN
+		IF(EXISTS(SELECT 1 FROM dbo.Users U
+				  LEFT OUTER JOIN dbo.MultipleCompanys MC ON u.CompanyId = MC.CompanyId AND u.Id = MC.UserId
+				  WHERE U.[TenantId] = @TenantId AND (U.[CompanyId] = @CompanyId OR MC.CompanyId = @CompanyId) AND ISNULL(@ManagerUserId,'') <> ''
+				  AND ((U.Id = @ManagerUserId AND (U.PositionId = 'TP' OR MC.PositionId = 'TP')) OR U.ManagerUserId = @ManagerUserId)))
+		BEGIN
+			IF(NOT EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT LOWER(NEWID()), @TenantId, @CompanyId, @ManagerUserId, DepartmentId, PositionId, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+				FROM Users WHERE TenantId=@TenantId AND (CompanyId=@CompanyId OR CompanyId <> @CompanyId) AND Id=@ManagerUserId
+		END
+		ELSE
+		BEGIN
+			IF(EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT Id, TenantId, CompanyId, UserId, DepartmentId, PositionId, RoleId, CreateTime, CreatorId, CreatorFullName, 'UNASSIGNED'
+				FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId
+		END
+	END
+	ELSE
+	BEGIN
+		-- Quản lý trực tiếp mới
+		IF(EXISTS(SELECT 1 FROM dbo.Users U
+				  LEFT OUTER JOIN dbo.MultipleCompanys MC ON u.Id = MC.UserId
+				  WHERE U.[TenantId] = @TenantId AND (U.[CompanyId] = @CompanyId OR MC.[CompanyId]=@CompanyId) AND ISNULL(@ManagerUserId,'') <> ''
+				  AND ((U.Id = @ManagerUserId AND (U.PositionId = 'TP' OR MC.PositionId = 'TP')) OR U.ManagerUserId = @ManagerUserId)))
+		BEGIN
+			IF(NOT EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT LOWER(NEWID()), TenantId, CompanyId, Id, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+				FROM Users WHERE TenantId=@TenantId AND CompanyId=@CompanyId AND Id=@ManagerUserId
+				UNION ALL
+				SELECT TOP(1) LOWER(NEWID()), TenantId, CompanyId, UserId, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+				FROM MultipleCompanys WHERE TenantId=@TenantId AND CompanyId=@CompanyId AND UserId=@ManagerUserId
+		END
+		ELSE
+		BEGIN
+			IF(EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, 'UNASSIGNED'
+				FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserId
+		END
+
+		-- Quản lý trực tiếp cũ
+		IF(EXISTS(SELECT 1 FROM dbo.Users U
+				  LEFT OUTER JOIN dbo.MultipleCompanys MC ON u.Id = MC.UserId
+				  WHERE U.[TenantId] = @TenantId AND (U.[CompanyId] = @CompanyId OR MC.[CompanyId]=@CompanyId) AND ISNULL(@ManagerUserIdOld,'') <> ''
+				  AND ((U.Id = @ManagerUserIdOld AND (U.PositionId = 'TP' OR MC.PositionId = 'TP')) OR U.ManagerUserId = @ManagerUserIdOld)))
+		BEGIN
+			IF(NOT EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserIdOld))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT LOWER(NEWID()), TenantId, CompanyId, Id, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+				FROM Users WHERE TenantId=@TenantId AND CompanyId=@CompanyId AND Id=@ManagerUserIdOld
+				UNION ALL
+				SELECT TOP(1) LOWER(NEWID()), TenantId, CompanyId, UserId, 'QLTT-TP', GETDATE(), @CreatorId, @CreatorFullName, 'ASSIGNED'
+				FROM MultipleCompanys WHERE TenantId=@TenantId AND CompanyId=@CompanyId AND UserId=@ManagerUserIdOld
+		END
+		ELSE
+		BEGIN
+			IF(EXISTS(SELECT 1 FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserIdOld))
+				INSERT INTO #TempTable
+				(Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, Type)
+				SELECT Id, TenantId, CompanyId, UserId, RoleId, CreateTime, CreatorId, CreatorFullName, 'UNASSIGNED'
+				FROM #RR WHERE [CompanyId] = @CompanyId AND UserId = @ManagerUserIdOld
+		END
+	END
+
+	-- ===== Áp dụng kết quả =====
+	DELETE FROM ResourceRoles
+	WHERE Id IN (SELECT Id FROM #TempTable WHERE Type = 'UNASSIGNED')
+
+	INSERT INTO ResourceRoles(Id, TenantId, CompanyId, UserId, RoleId, DepartmentId, PositionId, CreateTime, CreatorId, CreatorFullName)  -- [FIX-5]
+	SELECT Id, TenantId, CompanyId, UserId, RoleId, DepartmentId, PositionId, CreateTime, CreatorId, CreatorFullName
+	FROM #TempTable
+	WHERE Type = 'ASSIGNED'
+
+	SELECT * FROM #TempTable
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_DeleteByID]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_DeleteByID]
+(
+	@Id AS VARCHAR(50),
+	@DeleteUserId AS VARCHAR(50) = NULL,
+	@DeleteFullName AS NVARCHAR(300) = NULL
+)
+AS
+BEGIN
+	DECLARE @RetryCount INT = 10;
+	DECLARE @CurrentAttempt INT = 0;
+	DECLARE @Success BIT = 0;
+	DECLARE @DelayTime INT = 1;
+
+	WHILE @CurrentAttempt < @RetryCount AND @Success = 0
+	BEGIN
+		BEGIN TRY
+		BEGIN TRANSACTION;
+
+			UPDATE [dbo].[Users]
+			SET
+				[IsDelete] = 1,
+				[DeleteTime] = GETDATE(),
+				[DeleteUserId] = @DeleteUserId,
+				[DeleteFullName] = @DeleteFullName
+			WHERE 
+				[Id]=@Id 
+
+		COMMIT TRANSACTION;
+			SET @Success = 1;
+		END TRY
+		BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END
+
+		IF ERROR_NUMBER() = 1205 -- Error code for deadlock
+		BEGIN
+			SET @CurrentAttempt = @CurrentAttempt + 1;
+
+			IF @CurrentAttempt > 7
+			BEGIN
+				SET @DelayTime = @DelayTime + 1;
+			END
+			-- Wait for a short time before retrying
+			DECLARE @DelayString NVARCHAR(8);
+			SET @DelayString = '00:00:' + RIGHT('0' + CAST(@DelayTime AS VARCHAR(2)), 2);
+			WAITFOR DELAY @DelayString; -- delay in seconds
+		END
+		ELSE
+		BEGIN
+			THROW;
+		END
+		END CATCH;
+	END
+
+	IF @Success = 0
+	BEGIN
+		RAISERROR('Transaction failed after retrying.', 16, 1);
+	END
+
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_GetDayoff]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_GetDayoff]
+(
+    @TenantId  VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+    @UserId    VARCHAR(50) = '699edb54-c393-4db5-b9a5-cf615ba100be',
+    @StartDate DATETIME   = '2026-06-11'
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	-- Tháng 12: Không cấp thêm hạn mức cho ứng quỹ => Cột CompLeaveGranted trả về 0
+    DECLARE @IsDecember BIT = CASE WHEN MONTH(@StartDate) = 12 THEN 1 ELSE 0 END
+
+    /*══════════════════════════════════════════════════════════
+        PHẦN 2: KHAI BÁO BIẾN
+    ══════════════════════════════════════════════════════════*/
+    DECLARE @CompanyId            VARCHAR(50);
+    DECLARE @AdvanceLeaveGranted  INT;
+    DECLARE @WorkingHours         DECIMAL(17,2);
+    DECLARE @Year                 INT = YEAR(GETDATE());
+    DECLARE @Month                INT = MONTH(GETDATE());
+
+    /*══════════════════════════════════════════════════════════
+        PHẦN 3: LẤY THÔNG TIN USER VÀ COMPANY SETTINGS
+        FIX: Thêm ORDER BY vào TOP 1 để tránh kết quả ngẫu nhiên
+    ══════════════════════════════════════════════════════════*/
+
+	SELECT TOP 1
+		@CompanyId    = U.CompanyId,
+		@WorkingHours = TKS.WorkingHours,
+		@AdvanceLeaveGranted = IIF(@IsDecember = 1, 0,
+			-- Ưu tiên: User → Department → TimeKeeping
+			COALESCE(
+				U.AdvanceLeaveGranted,
+				D.AdvanceLeaveGranted,
+				TKS.AdvanceLeaveGranted,
+				0
+			)
+		)
+	FROM dbo.Users U WITH (NOLOCK)
+	LEFT JOIN dbo.Departments D WITH (NOLOCK)
+		ON D.Id = U.DepartmentId
+	LEFT JOIN dbo.TimeKeepingSettings TKS WITH (NOLOCK)
+		ON  TKS.TenantId  = U.TenantId
+		AND TKS.CompanyId = U.CompanyId
+	WHERE U.TenantId    = @TenantId
+		AND U.Id        = @UserId
+		AND U.WorkingForm = 0
+		AND U.Status      = 0
+		AND U.IsDelete    = 0
+	ORDER BY TKS.CreateTime DESC
+
+    -- Đặt giá trị mặc định nếu NULL sau khi query
+    SET @WorkingHours = ISNULL(@WorkingHours, 8);  -- Mặc định 8h/ngày
+
+    /*══════════════════════════════════════════════════════════
+        PHẦN 4: XỬ LÝ KHI KHÔNG TÌM THẤY USER
+    ══════════════════════════════════════════════════════════*/
+    IF @CompanyId IS NULL
+    BEGIN
+        SELECT
+            0    AS [Total],
+            0    AS [TotalUsed],
+            0    AS [TotalUnUsed],
+            0    AS [NewUnUsed],
+            0    AS [NewUsed],
+            0    AS [OldUnUsed],
+            0    AS [OldUsed],
+            NULL AS [ExpiryDateOld],
+            0    AS [IsActive],
+            0    AS [AdvanceLeaveGranted],
+            0    AS [WorkingHours];
+        RETURN;
+    END
+
+    /*══════════════════════════════════════════════════════════
+        PHẦN 5: TÍNH TOÁN PHÉP NGHỈ
+    ══════════════════════════════════════════════════════════*/
+    ;WITH DayOffData AS
+    (
+        SELECT
+            ISNULL([TotalUnUsed], 0) AS [TotalUnUsed],
+            ISNULL([Seniority],   0) AS [Seniority],
+            ISNULL([TotalUsed],   0) AS [TotalUsed],
+            ISNULL([Old],         0) AS [Old],
+            ISNULL([OldUsed],     0) AS [OldUsed],
+            ISNULL([New],         0) AS [New],
+            ISNULL([NewUsed],     0) AS [NewUsed],
+            [ExpiryDateOld]          -- NULL hợp lệ, giữ nguyên
+        FROM dbo.DayOffs WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+            AND UserId = @UserId
+            AND [Year] = @Year
+    ),
+    MonthCalculation AS
+    (
+        SELECT
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM dbo.AnnualLeaveLogs WITH (NOLOCK)
+                    WHERE UserId   = @UserId
+                        AND LogYear  = @Year
+                        AND LogMonth = @Month
+                        AND ActionType = 'MONTHLY_ADD'
+                )
+                THEN 12 - @Month
+                ELSE 12 - @Month + 1
+            END AS TotalMonth
+    ),
+    -- FIX: Tách điều kiện lặp lại thành CTE riêng, tránh tính 3 lần
+   OldLeaveCalc AS
+	(
+		SELECT
+			D.*,
+			-- Tính sẵn ở đây, SELECT cuối dùng trực tiếp, không lặp CASE nữa
+			CASE
+				WHEN GETDATE() < @StartDate AND D.ExpiryDateOld < @StartDate
+				THEN D.TotalUnUsed - D.Old + D.OldUsed
+				ELSE D.TotalUnUsed
+			END AS CalcTotalUnUsed,
+
+			CASE
+				WHEN GETDATE() < @StartDate AND D.ExpiryDateOld < @StartDate
+				THEN D.Old - D.OldUsed
+				ELSE 0
+			END AS CalcOldUnUsed
+		FROM DayOffData D
+	)
+    /*══════════════════════════════════════════════════════════
+        PHẦN 6: TRẢ VỀ KẾT QUẢ
+        
+        FIX: Dùng OldLeaveCalc.IsOldExpired thay vì lặp CASE 3 lần
+        FIX: @WorkingHours đã được ISNULL ở trên → không còn NULL
+    ══════════════════════════════════════════════════════════*/
+    SELECT
+		MC.TotalMonth * @WorkingHours * 60 + O.CalcTotalUnUsed  AS [Total],
+		O.TotalUsed,
+		O.CalcTotalUnUsed                                        AS [TotalUnUsed],
+		O.New + O.Seniority - O.NewUsed                         AS [NewUnUsed],
+		O.NewUsed,
+		O.CalcOldUnUsed                                          AS [OldUnUsed],
+		O.OldUsed,
+		O.ExpiryDateOld,
+		1                                                        AS [IsActive],
+		ISNULL(@AdvanceLeaveGranted, 0) * @WorkingHours * 60     AS [AdvanceLeaveGranted],
+		@WorkingHours                                            AS [WorkingHours]
+	FROM OldLeaveCalc O
+	CROSS JOIN MonthCalculation MC;
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        SELECT
+            0    AS [Total],
+            0    AS [TotalUsed],
+            0    AS [TotalUnUsed],
+            0    AS [NewUnUsed],
+            0    AS [NewUsed],
+            0    AS [OldUnUsed],
+            0    AS [OldUsed],
+            NULL AS [ExpiryDateOld],
+            1    AS [IsActive],          -- User hợp lệ nhưng chưa có dữ liệu phép
+            ISNULL(@AdvanceLeaveGranted, 0) * @WorkingHours * 60 AS [AdvanceLeaveGranted],
+            @WorkingHours AS [WorkingHours];
+    END
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_GetListQLNS]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_GetListQLNS](
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50)= 'c33b9591-4ab8-443b-8932-55ea3ff2c523'
+)
+AS
+BEGIN
+	SELECT UserId
+	FROM ResourceRoles
+	WHERE [TenantId]=@TenantId AND [CompanyId]=@CompanyId AND [RoleId]='QLNS'
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_GetListSendMoreTo]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_GetListSendMoreTo]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',	
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic',
+	@UserId AS VARCHAR(50)='a7302944-0917-4cc3-bcb1-9832a83bfd91'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT CompanyId
+	INTO #MultipleCompany
+	FROM dbo.MultipleCompanys WITH (NOLOCK)
+	WHERE TenantId = @TenantId  AND UserId = @UserId
+
+	SELECT UserId
+	INTO #MC
+	FROM dbo.MultipleCompanys WITH (NOLOCK)
+	WHERE TenantId = @TenantId  AND CompanyId = @CompanyId
+
+	SELECT [Id],[Code],[FullName],[PositionName]	
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE
+		[TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0  AND ID <> @UserId
+	UNION 
+	SELECT [Users].Id,[Users].[Code],[Users].[FullName],[Users].[PositionName] FROM [dbo].[Users] WITH (NOLOCK) 
+	INNER JOIN #MultipleCompany ON  #MultipleCompany.CompanyId = Users.CompanyId 
+	WHERE  [Users].[TenantId] = @TenantId AND [Users].[IsDelete] = 0
+	UNION 
+	SELECT [Users].Id,[Users].[Code],[Users].[FullName],[Users].[PositionName] FROM [dbo].[Users] WITH (NOLOCK) 
+	INNER JOIN #MC ON  #MC.UserId = Users.Id 
+	WHERE  [Users].[TenantId] = @TenantId AND [Users].[IsDelete] = 0
+	ORDER BY [FullName] ASC
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_GetResigned]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_GetResigned]
+(
+    @TenantId  VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+    @CompanyId VARCHAR(50) = 'c33b9591-4ab8-443b-8932-55ea3ff2c523',
+    @IsAll     BIT         = 1,
+    @Month     INT         = 4
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Year      INT  = YEAR(GETDATE());
+    DECLARE @StartDate DATE = CASE 
+                                WHEN @IsAll = 1 THEN DATEFROMPARTS(@Year, 1,      1)
+                                ELSE                 DATEFROMPARTS(@Year, @Month, 1)
+                              END;
+    DECLARE @EndDate   DATE = CASE
+                                WHEN @IsAll = 1 THEN DATEADD(YEAR,1,@StartDate)
+                                ELSE                 DATEADD(MONTH, 1, @StartDate)
+                              END;
+
+    SELECT
+        [Id], [Code], [FullName], [UserName],
+        [DepartmentName], [PositionName], [Gender],
+        [Birthday], [JoinedDate], [OutDate],
+        [PhoneNumber], [Address], [ManagerFullName]
+    FROM [dbo].[Users] WITH (NOLOCK)
+    WHERE [TenantId]        = @TenantId
+        AND [CompanyId]     = @CompanyId
+        AND [IsDelete]      = 0
+        AND PersonnelStatus = 3
+        AND [OutDate] >= @StartDate 
+        AND [OutDate] <  @EndDate
+    ORDER BY [OutDate] DESC;
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_GetWorkSchedule]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_GetWorkSchedule]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic',
+	@UserId AS VARCHAR(50) = 'a7302944-0917-4cc3-bcb1-9832a83bfd91',
+	@Date AS DATETIME2(7) = '2025-02-11'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT DISTINCT ShiftId 
+	INTO #Shift
+	FROM dbo.WorkShiftUsers
+	WHERE [TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [UserId] = @UserId
+	AND DATEDIFF(DAY,@Date,[Date]) = 0 AND IsDelete = 0
+	AND [ShiftType] = 0
+
+	SELECT Id,Code,Name,StartTime,EndTime,[Type],[Period] FROM dbo.Shifts
+	WHERE [TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 
+	AND EXISTS (SELECT 1 FROM #Shift WHERE ShiftId = Shifts.Id)
+	ORDER BY StartTime 
+
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_ImportData]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_ImportData](
+	@Id AS VARCHAR(50),
+	@TenantId AS VARCHAR(50),
+	@CompanyId AS VARCHAR(50) = null,
+	@UserId AS VARCHAR(50),
+	@UserId_HIS AS VARCHAR(100),
+	@UserEnrollNumber_Old AS INT ,
+	@UserEnrollNumber_New AS VARCHAR(50) = null
+)
+AS
+BEGIN
+	DECLARE @RetryCount INT = 10;
+	DECLARE @CurrentAttempt INT = 0;
+	DECLARE @Success BIT = 0;
+	DECLARE @DelayTime INT = 1;
+
+	WHILE @CurrentAttempt < @RetryCount AND @Success = 0
+	BEGIN
+		BEGIN TRY
+		BEGIN TRANSACTION;
+
+			INSERT INTO [UserInfo](Id,TenantId,CompanyId,UserId,UserId_HIS,UserEnrollNumber_Old,UserEnrollNumber_New)
+			VALUES (@Id,@TenantId,@CompanyId,@UserId,@UserId_HIS,@UserEnrollNumber_Old,@UserEnrollNumber_New)
+
+		COMMIT TRANSACTION;
+			SET @Success = 1;
+		END TRY
+		BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END
+
+		IF ERROR_NUMBER() = 1205 -- Error code for deadlock
+		BEGIN
+			SET @CurrentAttempt = @CurrentAttempt + 1;
+
+			IF @CurrentAttempt > 7
+			BEGIN
+				SET @DelayTime = @DelayTime + 1;
+			END
+			-- Wait for a short time before retrying
+			DECLARE @DelayString NVARCHAR(8);
+			SET @DelayString = '00:00:' + RIGHT('0' + CAST(@DelayTime AS VARCHAR(2)), 2);
+			WAITFOR DELAY @DelayString; -- delay in seconds
+		END
+		ELSE
+		BEGIN
+			THROW;
+		END
+		END CATCH;
+	END
+
+	IF @Success = 0
+	BEGIN
+		RAISERROR('Transaction failed after retrying.', 16, 1);
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_Insert]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--Create by : Trần Văn Mạnh
+--Create date : 17/01/2025 17:18:26
+--Description :
+--Output :
+--Modify :
+--Project : Quản Lý Spa
+-----------------------o0o-----------------------
+
+CREATE PROCEDURE [dbo].[spUser_Insert]
+(
+	@Id AS VARCHAR(50),
+	@Code AS VARCHAR(50) = NULL,
+	@TenantId AS VARCHAR(50) = NULL,
+	@CompanyId AS VARCHAR(50) = NULL,
+	@FullName AS NVARCHAR(300) = NULL,
+	@FirstName AS NVARCHAR(1000) = NULL,
+	@MiddleName AS NVARCHAR(1000) = NULL,
+	@LastName AS NVARCHAR(1000) = NULL,
+	@Birthday AS DATETIME2 = NULL,
+	@Avatar AS VARCHAR(500) = NULL,
+	@Gender AS INT = NULL,
+	@UserName AS VARCHAR(30) = NULL,
+	@CountryId AS VARCHAR(50) = NULL,
+	@ProvinceId AS VARCHAR(50) = NULL,
+	@DistrictId AS VARCHAR(50) = NULL,
+	@Address AS NVARCHAR(MAX) = NULL,
+	@PermanentAddress AS NVARCHAR(MAX) = NULL,
+	@TemporaryAddress AS NVARCHAR(MAX) = NULL,
+	@NationId AS VARCHAR(50) = NULL,
+	@ReligionId AS VARCHAR(50) = NULL,
+	@MarriedStatus AS INT = NULL,
+	@Status AS INT = NULL,
+	@Month AS INT,
+	@OfficalDate AS DATETIME2=NULL,
+	@JoinedDate AS DATETIME2 = NULL,
+	@OutDate AS DATETIME2 = NULL,
+	@DepartmentId AS INT = NULL,
+	@DepartmentPath AS VARCHAR(50) = NULL,
+	@DepartmentName AS NVARCHAR(4000) = NULL,
+	@TitleId AS VARCHAR(50) = NULL,
+	@TitleName AS NVARCHAR(4000) = NULL,
+	@PositionId AS VARCHAR(50) = NULL,
+	@PositionName AS NVARCHAR(4000) = NULL,
+	@PhoneNumber AS VARCHAR(50) = NULL,
+	@Email AS NVARCHAR(100) = NULL,
+	@ManagerUserId AS VARCHAR(50) = NULL,
+	@ManagerFullName AS NVARCHAR(100) = NULL,
+	@SuccessorUserId AS VARCHAR(100) = NULL,
+	@SuccessorFullName AS NVARCHAR(100) = NULL,
+	@WorkingForm AS INT = NULL,
+	@TaxCode AS VARCHAR(50) = NULL,
+	@EnrollNumberTT AS VARCHAR(50) = NULL,
+	@EnrollNumberNeo AS VARCHAR(50) = NULL,
+	@Note AS NVARCHAR(MAX) = NULL,
+	@ContractCode AS VARCHAR(50) = NULL,
+	@InsuranceCode AS VARCHAR(50) = NULL,
+	@InsuranceStatus AS INT = NULL,
+	@InsuranceName AS NVARCHAR(4000) = NULL,
+	@IdCardNumber AS NVARCHAR(60) = NULL,
+	@IdCardDateOfIssue AS DATETIME2 = NULL,
+	@IdCardPlaceOfIssue AS NVARCHAR(200) = NULL,
+	@IsActive AS BIT = NULL,
+	@ConcurrencyStamp AS VARCHAR(50) = NULL,
+	@CreateTime AS DATETIME2 = NULL,
+	@CreatorId AS VARCHAR(50) = NULL,
+	@CreatorFullName AS NVARCHAR(300) = NULL,
+	@LastUpdate AS DATETIME2 = NULL,
+	@LastUpdateUserId AS VARCHAR(50) = NULL,
+	@LastUpdateFullName AS NVARCHAR(300) = NULL,
+	@IsDelete AS BIT = NULL,
+	@DeleteTime AS DATETIME2 = NULL,
+	@DeleteUserId AS VARCHAR(50) = NULL,
+	@DeleteFullName AS NVARCHAR(300) = NULL,
+	@AdvanceLeaveGranted AS INT,
+	@CompLeaveGranted AS INT,
+	@ContractExpirationDate AS DATETIME2 = null,
+	@PersonnelStatus AS INT,
+	@DoctorCodeTT AS INT=null,
+	@DoctorCodeNeo AS INT = NULL,
+	@ExpireDays AS INT = NULL
+)
+AS
+BEGIN
+	DECLARE @RetryCount INT = 10;
+	DECLARE @CurrentAttempt INT = 0;
+	DECLARE @Success BIT = 0;
+	DECLARE @DelayTime INT = 1;
+
+	WHILE @CurrentAttempt < @RetryCount AND @Success = 0
+	BEGIN
+		BEGIN TRY
+		BEGIN TRANSACTION;
+
+			INSERT INTO [dbo].[Users]
+			(
+				[Id],
+				[Code],
+				[TenantId],
+				[CompanyId],
+				[FullName],
+				[FirstName],
+				[MiddleName],
+				[LastName],
+				[Birthday],
+				[Avatar],
+				[Gender],
+				[UserName],
+				[CountryId],
+				[ProvinceId],
+				[DistrictId],
+				[Address],
+				[PermanentAddress],
+				[TemporaryAddress],
+				[NationId],
+				[ReligionId],
+				[MarriedStatus],
+				[Status],
+				[Month],
+				[OfficalDate],
+				[JoinedDate],
+				[OutDate],
+				[DepartmentId],
+				[DepartmentPath],
+				[DepartmentName],
+				[TitleId],
+				[TitleName],
+				[PositionId],
+				[PositionName],
+				[PhoneNumber],
+				[Email],
+				[ManagerUserId],
+				[ManagerFullName],
+				[SuccessorUserId],
+				[SuccessorFullName],
+				[WorkingForm],
+				[TaxCode],
+				[EnrollNumberTT],
+				[EnrollNumberNeo],
+				[Note],
+				[ContractCode],
+				[InsuranceCode],
+				[InsuranceStatus],
+				[InsuranceName],
+				[IdCardNumber],
+				[IdCardDateOfIssue],
+				[IdCardPlaceOfIssue],
+				[IsActive],
+				[ConcurrencyStamp],
+				[CreateTime],
+				[CreatorId],
+				[CreatorFullName],
+				[LastUpdate],
+				[LastUpdateUserId],
+				[LastUpdateFullName],
+				[IsDelete],
+				[DeleteTime],
+				[DeleteUserId],
+				[DeleteFullName],
+				[AdvanceLeaveGranted],
+				[CompLeaveGranted],
+				[ContractExpirationDate],
+				[PersonnelStatus],
+				[DoctorCodeTT],
+				[DoctorCodeNeo],
+				[ExpireDays]
+			) 
+			VALUES
+			(
+				@Id,
+				@Code,
+				@TenantId,
+				@CompanyId,
+				@FullName,
+				@FirstName,
+				@MiddleName,
+				@LastName,
+				@Birthday,
+				@Avatar,
+				@Gender,
+				@UserName,
+				@CountryId,
+				@ProvinceId,
+				@DistrictId,
+				@Address,
+				@PermanentAddress,
+				@TemporaryAddress,
+				@NationId,
+				@ReligionId,
+				@MarriedStatus,
+				@Status,
+				@Month,
+				@OfficalDate,
+				@JoinedDate,
+				@OutDate,
+				@DepartmentId,
+				@DepartmentPath,
+				@DepartmentName,
+				@TitleId,
+				@TitleName,
+				@PositionId,
+				@PositionName,
+				@PhoneNumber,
+				@Email,
+				@ManagerUserId,
+				@ManagerFullName,
+				@SuccessorUserId,
+				@SuccessorFullName,
+				@WorkingForm,
+				@TaxCode,
+				@EnrollNumberTT,
+				@EnrollNumberNeo,
+				@Note,
+				@ContractCode,
+				@InsuranceCode,
+				@InsuranceStatus,
+				@InsuranceName,
+				@IdCardNumber,
+				@IdCardDateOfIssue,
+				@IdCardPlaceOfIssue,
+				@IsActive,
+				@ConcurrencyStamp,
+				@CreateTime,
+				@CreatorId,
+				@CreatorFullName,
+				@LastUpdate,
+				@LastUpdateUserId,
+				@LastUpdateFullName,
+				@IsDelete,
+				@DeleteTime,
+				@DeleteUserId,
+				@DeleteFullName,
+				@AdvanceLeaveGranted,
+				@CompLeaveGranted,
+				@ContractExpirationDate,
+				@PersonnelStatus,
+				@DoctorCodeTT,
+				@DoctorCodeNeo,
+				@ExpireDays
+			) 
+
+		COMMIT TRANSACTION;
+			SET @Success = 1;
+		END TRY
+		BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END
+
+		IF ERROR_NUMBER() = 1205 -- Error code for deadlock
+		BEGIN
+			SET @CurrentAttempt = @CurrentAttempt + 1;
+
+			IF @CurrentAttempt > 7
+			BEGIN
+				SET @DelayTime = @DelayTime + 1;
+			END
+			-- Wait for a short time before retrying
+			DECLARE @DelayString NVARCHAR(8);
+			SET @DelayString = '00:00:' + RIGHT('0' + CAST(@DelayTime AS VARCHAR(2)), 2);
+			WAITFOR DELAY @DelayString; -- delay in seconds
+		END
+		ELSE
+		BEGIN
+			THROW;
+		END
+		END CATCH;
+	END
+
+	IF @Success = 0
+	BEGIN
+		RAISERROR('Transaction failed after retrying.', 16, 1);
+	END
+
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_InsertBulk]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_InsertBulk]
+    @Users dbo.UserBulkInsertList READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @InsertedIds TABLE (Id NVARCHAR(50));
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        ;WITH Ranked AS
+        (
+            SELECT
+                u.*,
+                ROW_NUMBER() OVER (
+                    PARTITION BY CASE WHEN NULLIF(LTRIM(RTRIM(u.UserName)), N'') IS NULL
+                                      THEN CONCAT(N'__row__', u.SourceRowNumber)
+                                      ELSE LTRIM(RTRIM(u.UserName)) END
+                    ORDER BY u.SourceRowNumber) AS rnUser,
+                ROW_NUMBER() OVER (
+                    PARTITION BY CASE WHEN NULLIF(LTRIM(RTRIM(u.Code)), N'') IS NULL
+                                      THEN CONCAT(N'__row__', u.SourceRowNumber)
+                                      ELSE LTRIM(RTRIM(u.Code)) END
+                    ORDER BY u.SourceRowNumber) AS rnCode,
+                ROW_NUMBER() OVER (
+                    PARTITION BY CASE WHEN NULLIF(LTRIM(RTRIM(u.Id)), N'') IS NULL
+                                      THEN CONCAT(N'__row__', u.SourceRowNumber)
+                                      ELSE LTRIM(RTRIM(u.Id)) END
+                    ORDER BY u.SourceRowNumber) AS rnId
+            FROM @Users u
+        ),
+        Deduped AS
+        (
+            SELECT * FROM Ranked WHERE rnUser = 1 AND rnCode = 1 AND rnId = 1
+        )
+        INSERT INTO dbo.Users
+        (
+            Id, Code, TenantId, CompanyId, FullName, FirstName, MiddleName, LastName,
+            Birthday, Avatar, Gender, UserName, CountryId, ProvinceId, DistrictId,
+            Address, PermanentAddress, TemporaryAddress, NationId, ReligionId,
+            MarriedStatus, Status, [Month], OfficalDate, JoinedDate, OutDate,
+            DepartmentId, DepartmentPath, DepartmentName, TitleId, TitleName,
+            PositionId, PositionName, PhoneNumber, Email, ManagerUserId, ManagerFullName,
+            SuccessorUserId, SuccessorFullName, WorkingForm, TaxCode, EnrollNumberTT,
+            EnrollNumberNeo, Note, ContractCode, InsuranceCode, InsuranceStatus,
+            InsuranceName, IdCardNumber, IdCardDateOfIssue, IdCardPlaceOfIssue, IsActive,
+            ConcurrencyStamp, CreateTime, CreatorId, CreatorFullName, LastUpdate,
+            LastUpdateUserId, LastUpdateFullName, IsDelete, DeleteTime, DeleteUserId,
+            DeleteFullName, AdvanceLeaveGranted, CompLeaveGranted, ContractExpirationDate,
+            PersonnelStatus, ExpireDays
+        )
+        OUTPUT inserted.Id INTO @InsertedIds (Id)
+        SELECT
+            d.Id, d.Code, d.TenantId, d.CompanyId, d.FullName, d.FirstName, d.MiddleName, d.LastName,
+            d.Birthday, d.Avatar, d.Gender, d.UserName, d.CountryId, d.ProvinceId, d.DistrictId,
+            d.Address, d.PermanentAddress, d.TemporaryAddress, d.NationId, d.ReligionId,
+            d.MarriedStatus, d.Status, d.[Month], d.OfficalDate, d.JoinedDate, d.OutDate,
+            d.DepartmentId, d.DepartmentPath, d.DepartmentName, d.TitleId, d.TitleName,
+            d.PositionId, d.PositionName, d.PhoneNumber, d.Email, d.ManagerUserId, d.ManagerFullName,
+            d.SuccessorUserId, d.SuccessorFullName, d.WorkingForm, d.TaxCode, d.EnrollNumberTT,
+            d.EnrollNumberNeo, d.Note, d.ContractCode, d.InsuranceCode, d.InsuranceStatus,
+            d.InsuranceName, d.IdCardNumber, d.IdCardDateOfIssue, d.IdCardPlaceOfIssue, d.IsActive,
+            d.ConcurrencyStamp, d.CreateTime, d.CreatorId, d.CreatorFullName, d.LastUpdate,
+            d.LastUpdateUserId, d.LastUpdateFullName, d.IsDelete, d.DeleteTime, d.DeleteUserId,
+            d.DeleteFullName, d.AdvanceLeaveGranted, d.CompLeaveGranted, d.ContractExpirationDate,
+            d.PersonnelStatus, d.ExpireDays
+        FROM Deduped d
+        WHERE NOT EXISTS
+        (
+            SELECT 1
+            FROM dbo.Users u
+            WHERE u.TenantId = d.TenantId
+              AND ISNULL(u.IsDelete, 0) = 0
+              AND (
+                    (NULLIF(LTRIM(RTRIM(d.UserName)), N'') IS NOT NULL AND u.UserName COLLATE DATABASE_DEFAULT = d.UserName COLLATE DATABASE_DEFAULT)
+                 OR (NULLIF(LTRIM(RTRIM(d.Code)), N'') IS NOT NULL AND u.Code COLLATE DATABASE_DEFAULT = d.Code COLLATE DATABASE_DEFAULT)
+                  )
+        )
+        AND NOT EXISTS
+        (
+            -- Id is the global PK of dbo.Users: skip any row whose Id already exists (any tenant)
+            -- so a re-sync is idempotent instead of failing the whole batch on a PK violation.
+            SELECT 1
+            FROM dbo.Users u2
+            WHERE NULLIF(LTRIM(RTRIM(d.Id)), N'') IS NOT NULL
+              AND u2.Id = d.Id
+        );
+
+        COMMIT TRANSACTION;
+
+        SELECT Id FROM @InsertedIds;
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE() <> 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_JobRemindContract]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_JobRemindContract]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        U.TenantId,
+        U.Id,
+        U.Code,
+        U.FullName,
+        U.ContractExpirationDate,
+        RR.UserId
+    FROM dbo.Users U
+    INNER JOIN dbo.ResourceRoles RR 
+        ON RR.CompanyId = U.CompanyId
+    INNER JOIN dbo.Roles R
+        ON RR.RoleId = R.Id AND R.Code = 'QLNS'
+    WHERE 
+        U.IsActive = 1 
+        AND U.IsDelete = 0 
+		AND u.PersonnelStatus <> 3
+        AND CONVERT(DATE, U.ContractExpirationDate) 
+            BETWEEN CONVERT(DATE, GETDATE()) AND CONVERT(DATE, DATEADD(DAY, 3, GETDATE()))
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SearchBirthday]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SearchBirthday](
+	@TenantId AS VARCHAR(50)='dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50)='54ed7b02-36c3-4f1d-ba7d-a3fff1a23c59',
+	@Month AS INT=6
+)
+AS
+BEGIN
+	SELECT Code,DepartmentId,DepartmentName,FullName,Birthday,Gender,
+		   DATEDIFF(YEAR, Birthday, GETDATE()) 
+		   - CASE WHEN MONTH(Birthday) > MONTH(GETDATE()) OR 
+					(MONTH(Birthday) = MONTH(GETDATE()) AND DAY(Birthday) > DAY(GETDATE())) THEN 1 ELSE 0 END AS Age,JoinedDate
+	FROM Users
+	WHERE TenantId= @TenantId AND CompanyId = @CompanyId AND IsActive=1 AND IsDelete=0 AND (@Month IS NULL OR MONTH(Birthday)=@Month)
+	order by DepartmentName asc, Code asc
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAll]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectAll]
+(
+    @TenantId               AS VARCHAR(50) = NULL,
+    @CompanyId              AS VARCHAR(50) = NULL,
+    @ContractExpirationDate AS DATE        = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+ 
+    SELECT
+        [Id],
+        [Code],
+        [TenantId],
+        [CompanyId],
+        [FullName],
+        [Birthday],
+        [Avatar],
+        [Gender],
+        [UserName],
+        [Address],
+        [Status],
+        [JoinedDate],
+        [DepartmentId],
+        [DepartmentName],
+        [TitleName],
+        [PositionName],
+        [PhoneNumber],
+        [Email],
+        [ManagerFullName],
+        [WorkingForm],
+        [IsActive],
+        [ConcurrencyStamp],
+        [CreateTime],
+        [PersonnelStatus],
+		[ContractExpirationDate]
+    FROM [dbo].[Users] WITH (NOLOCK)
+    WHERE
+        [TenantId]  = @TenantId
+        AND [CompanyId] = @CompanyId
+        AND [IsDelete]  = 0
+        /* Range so sánh đúng cho cả cột DATE lẫn DATETIME/DATETIME2. */
+        AND (
+            @ContractExpirationDate IS NULL
+            OR (  
+				[ContractExpirationDate] < DATEADD(DAY, 1, @ContractExpirationDate)
+            )
+        )
+    ORDER BY [CreateTime] DESC
+    OPTION (RECOMPILE);   /* tránh parameter sniffing với tham số tùy chọn */
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAllByCompanyAndDepartmentAsync]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectAllByCompanyAndDepartmentAsync]
+(
+	@TenantId AS VARCHAR(50) = '',
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic',
+	@DepartmentId AS INT = 1
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT
+		[Id],
+		[Code],
+		[TenantId],
+		[CompanyId],
+		[FullName],
+		[Birthday],
+		[Avatar],
+		[Gender],
+		[UserName],	
+		[Address],
+		[Status],
+		[JoinedDate],
+		[DepartmentName],
+		[TitleName],
+		[PositionName],
+		[PhoneNumber],
+		[Email],
+		[ManagerFullName],
+		[WorkingForm],		
+		[IsActive],
+		[ConcurrencyStamp],
+		[CreateTime]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE
+		[TenantId] = @TenantId And [CompanyId] = @CompanyId AND [IsDelete] = 0 AND [DepartmentId]=@DepartmentId AND [IsActive]=1
+	ORDER BY [CreateTime] DESC
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAllByCompanyIdAndRoleId]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectAllByCompanyIdAndRoleId]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50)= 'thaithinhmedic',
+	@RoleId AS VARCHAR(50)= '533a1aaf-e565-4b99-87de-f1dacd4f7ef2'
+)
+AS
+BEGIN
+	SELECT [Id],[TenantId],[CompanyId],[Code],[FullName],[DepartmentId],[DepartmentName],[PositionId],[PositionName]
+	INTO #Users
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE [TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 AND IsActive=1
+	UNION ALL
+	SELECT Users.[Id],MultipleCompanys.[TenantId],MultipleCompanys.[CompanyId],[Code],[FullName],MultipleCompanys.[DepartmentId],MultipleCompanys.[DepartmentName],MultipleCompanys.[PositionId],MultipleCompanys.[PositionName]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	INNER JOIN [dbo].MultipleCompanys ON MultipleCompanys.UserId = Users.Id
+	WHERE MultipleCompanys.[TenantId] = @TenantId AND MultipleCompanys.[CompanyId] = @CompanyId AND IsActive=1
+
+	SELECT r.[Id],r.[UserId],c.[Name] AS CompanyName,u.[Code],u.[FullName],STRING_AGG(u.[DepartmentName],', ') AS DepartmentName,STRING_AGG(u.[PositionName],', ') AS [PositionName]
+	FROM [ResourceRoles] AS r
+	INNER JOIN #Users as u ON r.UserId = u.Id AND R.CompanyId = u.[CompanyId]
+	INNER JOIN Companys as c ON u.CompanyId = c.Id
+	WHERE 
+		u.[TenantId]=@TenantId AND 
+		u.[CompanyId] = @CompanyId AND
+		r.[RoleId] = @RoleId
+	GROUP BY r.[Id],r.UserId,c.Name,u.Code,u.FullName
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAllByFineFormulaAsync]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUser_SelectAllByFineFormulaAsync]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic',
+	@FineFormulaId AS VARCHAR(50) = '52b7c2e6-3343-40ef-a9d8-00e39c63db4d'
+)
+AS
+BEGIN
+	IF @FineFormulaId IS NULL
+	BEGIN
+		SELECT UserId
+		INTO #User1
+		FROM EmployeeFormulaAssignments 
+		WHERE [TenantId]=@TenantId AND
+			  [CompanyId]=@CompanyId AND
+			  @FineFormulaId IS NULL
+		 
+		SELECT [Id],[Code],[TenantId],[CompanyId],[FullName],[Birthday],[Avatar],[Gender],[UserName],[Address],[Status],
+			   [JoinedDate],[DepartmentId],[DepartmentName],[TitleName],[PositionName],[PhoneNumber],[Email],[ManagerFullName],
+		       [WorkingForm],[IsActive],[ConcurrencyStamp],[CreateTime]
+		FROM [dbo].[Users] WITH (NOLOCK)
+		WHERE
+			[TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 AND [IsActive]=1 AND
+			[Id] NOT IN (SELECT UserId FROM #User1)
+		ORDER BY [CreateTime] DESC
+	END
+	ELSE
+	BEGIN
+		IF EXISTS (SELECT 1 FROM FineFormulas WHERE Id=@FineFormulaId) 
+		BEGIN
+			SELECT UserId
+			INTO #User2
+			FROM EmployeeFormulaAssignments 
+			WHERE [TenantId]=@TenantId AND
+				  [CompanyId]=@CompanyId AND
+				  [FineFormulaId] <> @FineFormulaId
+		 
+			SELECT [Id],[Code],[TenantId],[CompanyId],[FullName],[Birthday],[Avatar],[Gender],[UserName],[Address],[Status],
+				   [JoinedDate],[DepartmentId],[DepartmentName],[TitleName],[PositionName],[PhoneNumber],[Email],[ManagerFullName],
+		           [WorkingForm],[IsActive],[ConcurrencyStamp],[CreateTime]
+			FROM [dbo].[Users] WITH (NOLOCK)
+			WHERE
+				[TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 AND [IsActive]=1 AND
+				[Id] NOT IN (SELECT UserId FROM #User2)
+			ORDER BY [CreateTime] DESC
+		END
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAllCurrent]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectAllCurrent]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic'
+)
+AS
+BEGIN
+	SELECT [Id],[Code],[FullName]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE [TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 AND IsActive=1
+	AND OutDate IS NULL
+	UNION 
+	SELECT Users.[Id],Users.[Code],Users.[FullName]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	INNER JOIN MultipleCompanys ON MultipleCompanys.UserId = Users.Id
+	WHERE MultipleCompanys.[TenantId] = @TenantId AND MultipleCompanys.[CompanyId] = @CompanyId AND IsActive=1
+	AND Users.OutDate IS NULL
+	ORDER BY Code ASC
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectAllUsers]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectAllUsers]
+(
+	@TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50) = 'thaithinhmedic'
+)
+AS
+BEGIN
+	SELECT [Id],[TenantId],[CompanyId],[Code],[FullName],[DepartmentId],[DepartmentName],[PositionId],[PositionName],UserName
+	into #DsNV
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE [TenantId] = @TenantId AND [CompanyId] = @CompanyId AND [IsDelete] = 0 AND IsActive=1
+	UNION ALL
+	SELECT MultipleCompanys.[UserId],MultipleCompanys.[TenantId],MultipleCompanys.[CompanyId],[Code],[FullName],MultipleCompanys.[DepartmentId],
+	MultipleCompanys.[DepartmentName],MultipleCompanys.[PositionId],MultipleCompanys.[PositionName], Users.UserName
+	FROM [dbo].[Users] WITH (NOLOCK)
+	INNER JOIN MultipleCompanys ON MultipleCompanys.UserId = Users.Id
+	WHERE MultipleCompanys.[TenantId] = @TenantId AND MultipleCompanys.[CompanyId] = @CompanyId AND [IsDelete] = 0 AND IsActive=1
+	ORDER BY Code asc
+
+	select [Id],[TenantId],[CompanyId],[Code],[FullName],STRING_AGG([DepartmentId],', ') AS [DepartmentId],STRING_AGG([DepartmentName],', ') AS [DepartmentName],STRING_AGG([PositionId],', ') AS [PositionId],STRING_AGG([PositionName],', ') AS [PositionName]
+	,UserName
+	from #DsNV
+	Group by [Id],[TenantId],[CompanyId],[Code],[FullName],UserName
+	order by Code
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectByID]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectByID]
+(
+	@Id AS VARCHAR(50)='7b82130f-7294-4d98-86de-fe75ea452094'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT
+		[Id],
+		[CompanyId],
+		[Code],
+		[TenantId],
+		[CompanyId],
+		[FullName],
+		[FirstName],
+		[MiddleName],
+		[LastName],
+		[Birthday],
+		[Avatar],
+		[Gender],
+		[UserName],
+		[CountryId],
+		[ProvinceId],
+		[DistrictId],
+		[Address],
+		[PermanentAddress],
+		[TemporaryAddress],
+		[NationId],
+		[ReligionId],
+		[MarriedStatus],
+		[Status],
+		[Month],
+		[OfficalDate],
+		[JoinedDate],
+		[OutDate],
+		[DepartmentId],
+		[DepartmentPath],
+		[DepartmentName],
+		[TitleId],
+		[TitleName],
+		[PositionId],
+		[PositionName],
+		[PhoneNumber],
+		[Email],
+		[ManagerUserId],
+		[ManagerFullName],
+		[SuccessorUserId],
+		[SuccessorFullName],
+		[WorkingForm],
+		[TaxCode],
+		[EnrollNumberTT],
+		[EnrollNumberNeo],
+		[Note],
+		[ContractCode],
+		[InsuranceCode],
+		[InsuranceStatus],
+		[InsuranceName],
+		[IdCardNumber],
+		[IdCardDateOfIssue],
+		[IdCardPlaceOfIssue],
+		[IsActive],
+		[ConcurrencyStamp],
+		[CreateTime],
+		[CreatorId],
+		[CreatorFullName],
+		[LastUpdate],
+		[LastUpdateUserId],
+		[LastUpdateFullName],
+		[IsDelete],
+		[DeleteTime],
+		[DeleteUserId],
+		[DeleteFullName],
+		[AdvanceLeaveGranted],
+		[CompLeaveGranted],
+		[ContractExpirationDate],
+		[PersonnelStatus],
+		[DoctorCodeTT],
+		[DoctorCodeNeo],
+		[PersonnelStatus],
+		[ExpireDays]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE 
+		[Id]=@Id AND 
+		[IsDelete] = 0
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectByIDTenantId]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectByIDTenantId]
+(
+	@TenantId AS VARCHAR(50)= '',
+	@Id AS VARCHAR(50)='0274f8cc-d16f-43ac-8171-1d4775ad6d47'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT
+		[Id],
+		[CompanyId],
+		[Code],
+		[TenantId],
+		[CompanyId],
+		[FullName],
+		[FirstName],
+		[MiddleName],
+		[LastName],
+		[Birthday],
+		[Avatar],
+		[Gender],
+		[UserName],
+		[CountryId],
+		[ProvinceId],
+		[DistrictId],
+		[Address],
+		[PermanentAddress],
+		[TemporaryAddress],
+		[NationId],
+		[ReligionId],
+		[MarriedStatus],
+		[Status],
+		[JoinedDate],
+		[OutDate],
+		[DepartmentId],
+		[DepartmentPath],
+		[DepartmentName],
+		[TitleId],
+		[TitleName],
+		[PositionId],
+		[PositionName],
+		[PhoneNumber],
+		[Email],
+		[ManagerUserId],
+		[ManagerFullName],
+		[SuccessorUserId],
+		[SuccessorFullName],
+		[WorkingForm],
+		[TaxCode],
+		[TimekeepingId],
+		[Note],
+		[ContractCode],
+		[InsuranceCode],
+		[InsuranceStatus],
+		[InsuranceName],
+		[IdCardNumber],
+		[IdCardDateOfIssue],
+		[IdCardPlaceOfIssue],
+		[IsActive],
+		[ConcurrencyStamp],
+		[CreateTime],
+		[CreatorId],
+		[CreatorFullName],
+		[LastUpdate],
+		[LastUpdateUserId],
+		[LastUpdateFullName],
+		[IsDelete],
+		[DeleteTime],
+		[DeleteUserId],
+		[DeleteFullName],
+		[ExpireDays]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE 
+		[TenantId] = @TenantId AND
+		[Id]=@Id AND 
+		[IsDelete] = 0
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectByTenantId]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectByTenantId]
+(
+	@TenantId AS VARCHAR(50)= 'dae13df6-6720-4bda-a61c-61e5e948017e',
+	@CompanyId AS VARCHAR(50)='c33b9591-4ab8-443b-8932-55ea3ff2c523',
+	@Id AS VARCHAR(50)='7b82130f-7294-4d98-86de-fe75ea452094'
+)
+AS
+BEGIN
+	SELECT
+		MultipleCompanys.TenantId,
+		MultipleCompanys.CompanyId,
+		[dbo].[fnTitleCode](TitleId) AS TitleCode,
+		FullName,
+		DoctorCode
+	FROM [dbo].[Users] WITH (NOLOCK)
+	INNER JOIN [dbo].[MultipleCompanys] ON Users.Id = MultipleCompanys.UserId AND Users.TenantId=MultipleCompanys.TenantId
+	WHERE MultipleCompanys.TenantId=@TenantId AND
+		  MultipleCompanys.CompanyId=@CompanyId AND
+		  MultipleCompanys.UserId=@Id AND
+		  Users.IsDelete=0
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectByUserHis]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectByUserHis]
+(
+	@CompanyId AS VARCHAR(50)= '',
+	@ReferenceId AS VARCHAR(50)='0274f8cc-d16f-43ac-8171-1d4775ad6d47'
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT
+		[Id],
+		[Code],
+		[TenantId],
+		[CompanyId],
+		[FullName],
+		[FirstName],
+		[MiddleName],
+		[LastName],
+		[Birthday],
+		[Avatar],
+		[Gender],
+		[UserName],
+		[CountryId],
+		[ProvinceId],
+		[DistrictId],
+		[Address],
+		[PermanentAddress],
+		[TemporaryAddress],
+		[NationId],
+		[ReligionId],
+		[MarriedStatus],
+		[Status],
+		[JoinedDate],
+		[OutDate],
+		[DepartmentId],
+		[DepartmentPath],
+		[DepartmentName],
+		[TitleId],
+		[TitleName],
+		[PositionId],
+		[PositionName],
+		[PhoneNumber],
+		[Email],
+		[ManagerUserId],
+		[ManagerFullName],
+		[SuccessorUserId],
+		[SuccessorFullName],
+		[WorkingForm],
+		[TaxCode],
+		[TimekeepingId],
+		[Note],
+		[ContractCode],
+		[InsuranceCode],
+		[InsuranceStatus],
+		[InsuranceName],
+		[IdCardNumber],
+		[IdCardDateOfIssue],
+		[IdCardPlaceOfIssue],
+		[IsActive],
+		[ConcurrencyStamp],
+		[CreateTime],
+		[CreatorId],
+		[CreatorFullName],
+		[LastUpdate],
+		[LastUpdateUserId],
+		[LastUpdateFullName],
+		[IsDelete],
+		[DeleteTime],
+		[DeleteUserId],
+		[DeleteFullName],
+		[ReferenceId]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE 
+		[CompanyId] = @CompanyId AND
+		[ReferenceId]=@ReferenceId AND 
+		[IsDelete] = 0
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_SelectMultiByID]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_SelectMultiByID]
+(
+	@CompanyId AS VARCHAR(50)='thaithinhmedic',
+	@UserId AS VARCHAR(50)='7808a5e1-f8cf-4e01-90c3-e99ac1625440'
+)
+AS
+BEGIN
+
+	SELECT Users.[Id],[TenantId],[CompanyId],[DepartmentId],[DepartmentName],[PositionId],[PositionName]
+	FROM [dbo].[Users] WITH (NOLOCK)
+	WHERE Id=@UserId AND CompanyId = @CompanyId AND PositionId = 'TP'
+	UNION ALL
+	SELECT MultipleCompanys.UserId,[TenantId],[CompanyId],[DepartmentId],[DepartmentName],[PositionId],[PositionName]
+	FROM [dbo].MultipleCompanys
+	WHERE UserId=@UserId AND PositionId = 'TP'
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_Update]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--Create by : Trần Văn Mạnh
+--Create date : 17/01/2025 17:18:52
+--Description :
+--Output :
+--Modify :
+--Project : Quản Lý Spa
+-----------------------o0o-----------------------
+
+CREATE PROCEDURE [dbo].[spUser_Update]
+(
+	@Id AS VARCHAR(50),
+	@TenantId AS VARCHAR(50) = NULL,
+	@CompanyId AS VARCHAR(50) = NULL,
+	@FullName AS NVARCHAR(300) = NULL,
+	@FirstName AS NVARCHAR(1000) = NULL,
+	@MiddleName AS NVARCHAR(1000) = NULL,
+	@LastName AS NVARCHAR(1000) = NULL,
+	@Birthday AS DATETIME2 = NULL,
+	@Avatar AS VARCHAR(500) = NULL,
+	@Gender AS INT = NULL,
+	@CountryId AS VARCHAR(50) = NULL,
+	@ProvinceId AS VARCHAR(50) = NULL,
+	@DistrictId AS VARCHAR(50) = NULL,
+	@Address AS NVARCHAR(MAX) = NULL,
+	@PermanentAddress AS NVARCHAR(MAX) = NULL,
+	@TemporaryAddress AS NVARCHAR(MAX) = NULL,
+	@NationId AS VARCHAR(50) = NULL,
+	@ReligionId AS VARCHAR(50) = NULL,
+	@MarriedStatus AS INT = NULL,
+	@Status AS INT = NULL,
+	@Month AS INT=null,
+	@OfficalDate AS DATETIME2=null,
+	@JoinedDate AS DATETIME2 = NULL,
+	@OutDate AS DATETIME2 = NULL,
+	@DepartmentId AS INT = NULL,
+	@DepartmentPath AS VARCHAR(50) = NULL,
+	@DepartmentName AS NVARCHAR(4000) = NULL,
+	@TitleId AS VARCHAR(50) = NULL,
+	@TitleName AS NVARCHAR(4000) = NULL,
+	@PositionId AS VARCHAR(50) = NULL,
+	@PositionName AS NVARCHAR(4000) = NULL,
+	@PhoneNumber AS VARCHAR(50) = NULL,
+	@Email AS NVARCHAR(100) = NULL,
+	@ManagerUserId AS VARCHAR(50) = NULL,
+	@ManagerFullName AS NVARCHAR(100) = NULL,
+	@SuccessorUserId AS VARCHAR(100) = NULL,
+	@SuccessorFullName AS NVARCHAR(100) = NULL,
+	@WorkingForm AS INT = NULL,
+	@TaxCode AS VARCHAR(50) = NULL,
+	@EnrollNumberTT AS VARCHAR(50) = NULL,
+	@EnrollNumberNeo AS VARCHAR(50) = NULL,
+	@Note AS NVARCHAR(MAX) = NULL,
+	@InsuranceCode AS VARCHAR(50) = NULL,
+	@InsuranceStatus AS INT = NULL,
+	@InsuranceName AS NVARCHAR(4000) = NULL,
+	@IdCardNumber AS NVARCHAR(60) = NULL,
+	@IdCardDateOfIssue AS DATETIME2 = NULL,
+	@IdCardPlaceOfIssue AS NVARCHAR(200) = NULL,
+	@IsActive AS BIT = NULL,
+	@ConcurrencyStamp AS VARCHAR(50) = NULL,
+	@CreateTime AS DATETIME2 = NULL,
+	@CreatorId AS VARCHAR(50) = NULL,
+	@CreatorFullName AS NVARCHAR(300) = NULL,
+	@LastUpdate AS DATETIME2 = NULL,
+	@LastUpdateUserId AS VARCHAR(50) = NULL,
+	@LastUpdateFullName AS NVARCHAR(300) = NULL,
+	@IsDelete AS BIT = NULL,
+	@DeleteTime AS DATETIME2 = NULL,
+	@DeleteUserId AS VARCHAR(50) = NULL,
+	@DeleteFullName AS NVARCHAR(300) = NULL,
+	@AdvanceLeaveGranted AS INT=null,
+	@CompLeaveGranted AS INT=null,
+	@ContractExpirationDate AS DATETIME2=null,
+	@PersonnelStatus AS INT=null,
+	@DoctorCodeTT AS INT=null,
+	@DoctorCodeNeo AS INT = NULL,
+	@ExpireDays AS INT = NULL
+)
+AS
+BEGIN
+	DECLARE @RetryCount INT = 10;
+	DECLARE @CurrentAttempt INT = 0;
+	DECLARE @Success BIT = 0;
+	DECLARE @DelayTime INT = 1;
+
+	WHILE @CurrentAttempt < @RetryCount AND @Success = 0
+	BEGIN
+		BEGIN TRY
+		BEGIN TRANSACTION;
+
+			UPDATE [dbo].[Users]
+			SET
+				[TenantId] = @TenantId,
+				[CompanyId] = @CompanyId,
+				[FullName] = @FullName,
+				[FirstName] = @FirstName,
+				[MiddleName] = @MiddleName,
+				[LastName] = LastName,
+				[Birthday] = Birthday,
+				[Avatar] = @Avatar,
+				[Gender] = @Gender,
+				[CountryId] = @CountryId,
+				[ProvinceId] = @ProvinceId,
+				[DistrictId] = @DistrictId,
+				[Address] = @Address,
+				[PermanentAddress] = @PermanentAddress,
+				[TemporaryAddress] = @TemporaryAddress,
+				[NationId] = @NationId,
+				[ReligionId] = @ReligionId,
+				[MarriedStatus] = @MarriedStatus,
+				[Status] = @Status,
+				[Month] = @Month,
+				[OfficalDate] = @OfficalDate,
+				[JoinedDate] = @JoinedDate,
+				[OutDate] = @OutDate,
+				[DepartmentId] = @DepartmentId,
+				[DepartmentPath] = @DepartmentPath,
+				[DepartmentName] = @DepartmentName, 
+				[TitleId] = @TitleId,
+				[TitleName] = @TitleName,
+				[PositionId] = @PositionId,
+				[PositionName] = @PositionName,
+				[PhoneNumber] = @PhoneNumber,
+				[Email] = @Email,
+				[ManagerUserId] = @ManagerUserId,
+				[ManagerFullName] = @ManagerFullName,
+				[SuccessorUserId] = @SuccessorUserId,
+				[SuccessorFullName] = @SuccessorFullName,
+				[WorkingForm] = @WorkingForm,
+				[TaxCode] = @TaxCode,
+				[EnrollNumberTT] = @EnrollNumberTT,
+				[EnrollNumberNeo] = @EnrollNumberNeo,
+				[Note] = @Note,
+				[InsuranceCode] = @InsuranceCode,
+				[InsuranceStatus] = @InsuranceStatus,
+				[InsuranceName] = @InsuranceName,
+				[IdCardNumber] = @IdCardNumber,
+				[IdCardDateOfIssue] = @IdCardDateOfIssue,
+				[IdCardPlaceOfIssue] = @IdCardPlaceOfIssue,
+				[IsActive] = @IsActive,
+				[ConcurrencyStamp] = @ConcurrencyStamp,
+				[CreateTime] = COALESCE(@CreateTime,CreateTime),
+				[CreatorId] = COALESCE(@CreatorId,CreatorId),
+				[CreatorFullName] = COALESCE(@CreatorFullName,CreatorFullName),
+				[LastUpdate] = COALESCE(@LastUpdate,LastUpdate),
+				[LastUpdateUserId] = COALESCE(@LastUpdateUserId,LastUpdateUserId),
+				[LastUpdateFullName] = COALESCE(@LastUpdateFullName,LastUpdateFullName),
+				[IsDelete] = COALESCE(@IsDelete,IsDelete),
+				[DeleteTime] = COALESCE(@DeleteTime,DeleteTime),
+				[DeleteUserId] = COALESCE(@DeleteUserId,DeleteUserId),
+				[DeleteFullName] = COALESCE(@DeleteFullName,DeleteFullName),
+				[AdvanceLeaveGranted] = @AdvanceLeaveGranted,
+				[CompLeaveGranted] = @CompLeaveGranted,
+				[ContractExpirationDate]=@ContractExpirationDate,
+				[PersonnelStatus] = @PersonnelStatus,
+				[DoctorCodeTT]=@DoctorCodeTT,
+				[DoctorCodeNeo]=@DoctorCodeNeo,
+				[ExpireDays] = @ExpireDays
+			WHERE 
+				[Id] = @Id
+
+		COMMIT TRANSACTION;
+			SET @Success = 1;
+		END TRY
+		BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END
+
+		IF ERROR_NUMBER() = 1205 -- Error code for deadlock
+		BEGIN
+			SET @CurrentAttempt = @CurrentAttempt + 1;
+
+			IF @CurrentAttempt > 7
+			BEGIN
+				SET @DelayTime = @DelayTime + 1;
+			END
+			-- Wait for a short time before retrying
+			DECLARE @DelayString NVARCHAR(8);
+			SET @DelayString = '00:00:' + RIGHT('0' + CAST(@DelayTime AS VARCHAR(2)), 2);
+			WAITFOR DELAY @DelayString; -- delay in seconds
+		END
+		ELSE
+		BEGIN
+			THROW;
+		END
+		END CATCH;
+	END
+
+	IF @Success = 0
+	BEGIN
+		RAISERROR('Transaction failed after retrying.', 16, 1);
+	END
+
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[spUser_UpdateManagerUser]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spUser_UpdateManagerUser]
+(
+	@UserId AS VARCHAR(50)
+)
+AS
+BEGIN
+	DECLARE @RetryCount INT = 10;
+	DECLARE @CurrentAttempt INT = 0;
+	DECLARE @Success BIT = 0;
+	DECLARE @DelayTime INT = 1;
+
+	WHILE @CurrentAttempt < @RetryCount AND @Success = 0
+	BEGIN
+		BEGIN TRY
+		BEGIN TRANSACTION;
+
+			UPDATE [dbo].[Users]
+			SET
+				ManagerUserId=NULL, ManagerFullName=NULL
+			WHERE 
+				[ManagerUserId]=@UserId
+
+
+		COMMIT TRANSACTION;
+			SET @Success = 1;
+		END TRY
+		BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END
+
+		IF ERROR_NUMBER() = 1205 -- Error code for deadlock
+		BEGIN
+			SET @CurrentAttempt = @CurrentAttempt + 1;
+
+			IF @CurrentAttempt > 7
+			BEGIN
+				SET @DelayTime = @DelayTime + 1;
+			END
+			-- Wait for a short time before retrying
+			DECLARE @DelayString NVARCHAR(8);
+			SET @DelayString = '00:00:' + RIGHT('0' + CAST(@DelayTime AS VARCHAR(2)), 2);
+			WAITFOR DELAY @DelayString; -- delay in seconds
+		END
+		ELSE
+		BEGIN
+			THROW;
+		END
+		END CATCH;
+	END
+
+	IF @Success = 0
+	BEGIN
+		RAISERROR('Transaction failed after retrying.', 16, 1);
+	END
+
+END 
+
+GO
+/****** Object:  StoredProcedure [dbo].[Update_By_PositionName]    Script Date: 25/09/2026 11:24:58 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ Create   PROCEDURE [dbo].[Update_By_PositionName]
+(
+	@TenantId AS VARCHAR(50) = null,
+	@CompanyId AS VARCHAR(50),
+	@PositionId AS VARCHAR(50),
+	@PositionName AS NVARCHAR(4000) = NULL
+
+)
+AS
+BEGIN
+	UPDATE [dbo].[Users]
+	SET	
+		[PositionName] = @PositionName	
+	WHERE 
+		[PositionId] = @PositionId AND
+		[TenantId] = @TenantId AND
+		[CompanyId] = @CompanyId
+END 
+GO
