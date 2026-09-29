@@ -1,4 +1,5 @@
 using Autofac;
+using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using FluentValidation.AspNetCore;
 using GHM.HR.API.Infrastructure.AutofacModules;
@@ -22,6 +23,7 @@ builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsi
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());

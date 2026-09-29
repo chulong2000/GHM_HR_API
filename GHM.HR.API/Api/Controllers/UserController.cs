@@ -36,6 +36,19 @@ namespace GHM.HR.Api.Controllers
             _logger = logger;
         }
 
+
+        [SwaggerOperation(Summary = "Search Remote information user birthday", Description = "Requires login verification!", OperationId = "SearchRemoteUserBirthday", Tags = new[] { "User" })]
+        [Route("search-birthday/{companyId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> SearchAsync(string companyId, int? month, DataSourceLoadOptions loadOptions)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var data = await _userService.SearchUserBirthdayAsync(tenantId, companyId, month);
+            return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
+        }
+
+
+
+
         [HttpGet("count-by-relationship")]
         public async Task<IActionResult> CountByRelationship(string companyId, CancellationToken cancellationToken)
         {

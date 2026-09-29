@@ -13,7 +13,7 @@ namespace GHM.HR.Domain.ModelMetas
         public DateTime Birthday { get; set; }
         public string Avatar { get; set; }
         public Gender Gender { get; set; }
-        public string ManagerUserId { get; set; }
+        public string? ManagerUserId { get; set; }
         public UserStatus Status { get; set; }
         public TypeMonth? Month { get; set; }
         public DateTime? OfficalDate { get; set; } 

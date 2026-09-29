@@ -46,7 +46,11 @@ namespace GHM.HR.Infrastructure.Services
             return info;
         }
 
-	public async Task<List<CompanysSearchViewModel>> SelectAllAsync(string tenantId)
+        /// <summary>
+        /// Represents an immutable financial transaction with an amount, date, and descriptive notes.
+        /// </summary>
+        /// <param name="tenantId">The transaction amount. Positive values represent credits/deposits, negative values represent debits/withdrawals.</param>
+        public async Task<List<CompanysSearchViewModel>> SelectAllAsync(string tenantId)
         {
             return await _companyRepository.SelectAllAsync(tenantId);
         }

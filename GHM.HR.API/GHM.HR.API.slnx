@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../../../Documents/Source Code GHM Backend/hrm-api/GHM.Infrastructure/GHM.Infrastructure.csproj" />
   <Project Path="GHM.HR.API.csproj" />
 </Solution>
