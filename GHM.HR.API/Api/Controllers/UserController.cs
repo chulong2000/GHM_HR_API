@@ -47,6 +47,15 @@ namespace GHM.HR.Api.Controllers
         }
 
 
+        [SwaggerOperation(Summary = "Search Remote information user resigned", Description = "Requires login verification!", OperationId = "SearchRemoteUserResigned", Tags = new[] { "User" })]
+        [Route("search-resigned/{companyId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> SearchResignedAsync(string companyId, bool isAll, int month, DataSourceLoadOptions loadOptions)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var data = await _userService.SearchUserResignedAsync(tenantId, companyId, isAll, month);
+            return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
+        }
+
 
 
         [HttpGet("count-by-relationship")]
@@ -66,7 +75,8 @@ namespace GHM.HR.Api.Controllers
         [AcceptVerbs("POST"), ValidateModel]
         public async Task<IActionResult> InsertAsync([FromBody] UserMeta userMeta)
         {
-            var result = await _userService.InsertAsync(CurrentUser.TenantId, CurrentUser.Id, CurrentUser.FullName, CurrentUser.Avatar, userMeta);
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.InsertAsync(tenantId, CurrentUser.Id, CurrentUser.FullName, CurrentUser.Avatar, userMeta);
             if (result.Code <= 0)
             {
                 _logger.LogError("Insert user controller code");

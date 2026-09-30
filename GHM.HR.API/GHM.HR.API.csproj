@@ -25,7 +25,7 @@
 
 
 <ItemGroup>
-  <ProjectReference Include="..\..\..\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+  <ProjectReference Include="C:\Users\user\Documents\Source Code C#\Source Code HR_GHM\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
 </ItemGroup>
 
 </Project>
