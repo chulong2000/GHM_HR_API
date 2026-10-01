@@ -1,3 +1,4 @@
+using GHM.HR.API.Domain.ViewModels;
 using GHM.HR.Domain.ModelMetas;
 using GHM.HR.Domain.Models;
 using GHM.HR.Domain.ViewModels;
@@ -25,5 +26,7 @@ namespace GHM.HR.Domain.IServices
         Task<ActionResultResponse<string>> GetCodeAsync(string tenantId);
         Task<UserProfileViewModel> GetProfileAsync(string tenantId, string id);
         Task<ActionResultResponse<UserCountByRelationshipViewModel>> CountByRelationshipAsync(string companyId, BriefUser currentUser, CancellationToken cancellationToken);
+
+        Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId);
     }
 }

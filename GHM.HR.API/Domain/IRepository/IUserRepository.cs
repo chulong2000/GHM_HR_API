@@ -1,12 +1,13 @@
-using GHM.Infrastructure.ViewModels;
+using GHM.HR.API.Domain.ViewModels;
+using GHM.HR.Domain.Constants;
 using GHM.HR.Domain.Models;
 using GHM.HR.Domain.ViewModels;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using GHM.HR.Domain.Constants;
-using System;
-using System.Threading;
 using GHM.Infrastructure.Models;
+using GHM.Infrastructure.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GHM.HR.Domain.IRepository
 {
@@ -79,5 +80,7 @@ namespace GHM.HR.Domain.IRepository
         #endregion
 
         Task<List<(int, int)?>> CountByRelationshipAsync(string companyId, BriefUser currentUser, CancellationToken cancellationToken);
+
+        Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId);
     }
 }

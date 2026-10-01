@@ -22,6 +22,7 @@ using GHM.HR.API.Domain.IRepository;
 using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Infrastructure.Data;
 using GHM.HR.Domain.Constants;
+using GHM.HR.API.Domain.ViewModels;
 
 namespace GHM.HR.Infrastructure.Services
 {
@@ -524,5 +525,9 @@ namespace GHM.HR.Infrastructure.Services
             }
         }
 
+        public async Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId)
+        {
+            return await _userRepository.GetListSendMoreToasync(tenantId, companyId, userId);
+        }
     }
 }
