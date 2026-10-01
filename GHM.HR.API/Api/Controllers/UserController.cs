@@ -56,7 +56,14 @@ namespace GHM.HR.Api.Controllers
             return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
         }
 
-
+        [SwaggerOperation(Summary = "Lấy danh sách nhân viên trong cty và thuộc cty kiêm nhiệm ", Description = "Requires login verification!", OperationId = "SearchRemoteExpressUsers", Tags = new[] { "User" })]
+        [Route("search-all-users/{companyId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> SearchRemoteAllUsersAsync(string companyId, DataSourceLoadOptions loadOptions)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var data = await _userService.SelectAllUsersAsync(tenantId, companyId);
+            return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
+        }
 
         [HttpGet("count-by-relationship")]
         public async Task<IActionResult> CountByRelationship(string companyId, CancellationToken cancellationToken)
@@ -124,7 +131,20 @@ namespace GHM.HR.Api.Controllers
             return Ok(result);
         }
 
-        
+        [SwaggerOperation(Summary = "Get code information user.", Description = "Requires login verification!", OperationId = "GetCode", Tags = new[] { "User" })]
+        [Route("code"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetCodeAsync()
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.GetCodeAsync(tenantId);
+            if (result.Code <= 0)
+            {
+                _logger.LogError("Get code customer controller code");
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
 
         [SwaggerOperation(Summary = "Select All information user.", Description = "Requires login verification!", OperationId = "SelectAll", Tags = new[] { "User" })]
         [Route("get-all"), AcceptVerbs("GET")]
@@ -134,7 +154,16 @@ namespace GHM.HR.Api.Controllers
             return Ok(result);
         }
 
-       
+        [SwaggerOperation(Summary = "Lay danh sach nhan vien da co va chua co trong cong thuc tinh phat cua cty", Description = "Requires login verification!", OperationId = "GetAllUsersByFineFormula", Tags = new[] { "User" })]
+        [Route("get-all-by-formula/{companyId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetAllUsersByByFineFormulaAsync(string companyId, string fineFormulaId)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.SelectAllUsersByFineFormulaAsync(tenantId, companyId, fineFormulaId);
+            return Ok(result);
+        }
+
+
         [SwaggerOperation(Summary = "Get all user by Company and Department.", Description = "Requires login verification!", OperationId = "GetAllUsers", Tags = new[] { "User" })]
         [Route("get-all-users"), AcceptVerbs("GET")]
         public async Task<IActionResult> GetAllUsersByCompanyAndDepartmentAsync(string companyId, int departmentId)
