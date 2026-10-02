@@ -529,5 +529,10 @@ namespace GHM.HR.Infrastructure.Services
         {
             return await _userRepository.GetListSendMoreToasync(tenantId, companyId, userId);
         }
+
+        public async Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date)
+        {
+            return await _userRepository.GetWorkScheduleasync(tenantId, companyId, userId, date);
+        }
     }
 }

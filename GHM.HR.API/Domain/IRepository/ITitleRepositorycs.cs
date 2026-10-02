@@ -1,8 +1,9 @@
 ﻿using GHM.HR.API.Domain.Models;
+using GHM.HR.API.Domain.ViewModels;
 
 namespace GHM.HR.API.Domain.IRepository
 {
-    public interface ITitleRepositorycs
+    public interface ITitleRepository
     {
         Task<List<TitleSearchViewModel>> SelectAllAsync(string tenantId, string companyId);
         Task<List<TitleSearchViewModel>> SelectAllTitleActiveAsync(string tenantId, string companyId);

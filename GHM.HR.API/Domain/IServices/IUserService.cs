@@ -28,5 +28,7 @@ namespace GHM.HR.Domain.IServices
         Task<ActionResultResponse<UserCountByRelationshipViewModel>> CountByRelationshipAsync(string companyId, BriefUser currentUser, CancellationToken cancellationToken);
 
         Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId);
+
+        Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date);
     }
 }

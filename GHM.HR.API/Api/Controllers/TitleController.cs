@@ -5,6 +5,7 @@ using GHM.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using GHM.HR.API.Domain.ModelMetas;
 
 namespace GHM.HR.API.Api.Controllers
 {

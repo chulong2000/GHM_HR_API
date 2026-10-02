@@ -1800,5 +1800,29 @@ namespace GHM.HR.Infrastructure.Repository
                 return [];
             }
         }
+
+        public async Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@UserId", userId);
+                param.Add("@Date", date);
+                var results = await con.QueryAsync<UserWorkScheduleViewModel>("[dbo].[spUser_GetWorkSchedule]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_GetWorkSchedule] GetListReceiveNotificationasync UserRepository Error.");
+                return [];
+            }
+        }
     }
 }

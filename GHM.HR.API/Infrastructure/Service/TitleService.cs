@@ -1,4 +1,6 @@
-﻿using GHM.HR.API.Domain.IServices;
+﻿using GHM.HR.API.Domain.IRepository;
+using GHM.HR.API.Domain.IServices;
+using GHM.HR.API.Domain.ModelMetas;
 using GHM.HR.API.Domain.Models;
 using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Domain.ViewModels;

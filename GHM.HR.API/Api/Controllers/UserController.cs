@@ -1,9 +1,12 @@
 ﻿using DevExtreme.AspNet.Data;
+using GHM.HR.Domain;
 using GHM.HR.Domain.IServices;
 using GHM.HR.Domain.ModelMetas;
+using GHM.HR.Domain.Models;
 using GHM.HR.Infrastructure.Services;
 using GHM.Infrastructure;
 using GHM.Infrastructure.CustomAttributes;
+using GHM.Infrastructure.Models;
 using GHM.Infrastructure.SearchRemote;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +18,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using GHM.HR.Domain;
-using GHM.Infrastructure.Models;
 
 namespace GHM.HR.Api.Controllers
 {
@@ -173,6 +174,14 @@ namespace GHM.HR.Api.Controllers
             return Ok(HandlerSearchResult.SearchResult(result, loadOptions));
         }
 
+        [SwaggerOperation(Summary = "Lấy lịch làm việc của nhân viên", Description = "Requires login verification!", OperationId = "GetWorkSchedule", Tags = ["User"])]
+        [Route("workschedule/{companyId}/{userId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetWorkScheduleasync(string companyId, string userId, DateTime date)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.GetWorkScheduleasync(tenantId, companyId, userId, date);
+            return Ok(result);
+        }
 
         [SwaggerOperation(Summary = "Get all user by Company and Department.", Description = "Requires login verification!", OperationId = "GetAllUsers", Tags = new[] { "User" })]
         [Route("get-all-users"), AcceptVerbs("GET")]
