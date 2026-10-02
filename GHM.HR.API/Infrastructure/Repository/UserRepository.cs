@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GHM.Infrastructure.Models;
+using GHM.HR.API.Domain.ViewModels;
 
 namespace GHM.HR.Infrastructure.Repository
 {
@@ -1775,6 +1776,29 @@ namespace GHM.HR.Infrastructure.Repository
             await connection.OpenAsync(cancellationToken);
             var result = await connection.QueryAsync<(int Status, int Total)?>(sql, parameters);
             return result.ToList();
+        }
+
+        public async Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@UserId", userId);
+                var results = await con.QueryAsync<UserSendMoreToViewModel>("[dbo].[spUser_GetListSendMoreTo]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_GetListSendMoreTo] GetListReceiveNotificationasync UserRepository Error.");
+                return [];
+            }
         }
     }
 }

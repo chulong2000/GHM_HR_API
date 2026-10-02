@@ -163,6 +163,16 @@ namespace GHM.HR.Api.Controllers
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "danh sách nhân sự toàn bộ công ty gồm cả cty mà nhân sự đó kiêm nhiệm", Description = "Requires login verification!", OperationId = "SearchRemoteListMore", Tags = ["User"])]
+        [Route("search-more/{companyId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetListSendMoreToasync(string companyId, DataSourceLoadOptions loadOptions)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            string userId = "da87490a-5e89-4b79-bc47-54a51d8d5b7e";
+            var result = await _userService.GetListSendMoreToasync(tenantId, companyId, userId);
+            return Ok(HandlerSearchResult.SearchResult(result, loadOptions));
+        }
+
 
         [SwaggerOperation(Summary = "Get all user by Company and Department.", Description = "Requires login verification!", OperationId = "GetAllUsers", Tags = new[] { "User" })]
         [Route("get-all-users"), AcceptVerbs("GET")]
