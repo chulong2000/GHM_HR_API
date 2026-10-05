@@ -231,5 +231,7 @@ namespace GHM.HR.Api.Controllers
             var data = await _userService.GetListUsersResignInMonth(tenantId, companyId, month);
             return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
         }
+
+
     }
 }

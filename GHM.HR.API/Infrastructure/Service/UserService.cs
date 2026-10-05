@@ -1,5 +1,7 @@
 ﻿
+
 using GHM.HR.API.Domain.IRepository;
+using GHM.HR.API.Domain.ModelMetas;
 using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Domain.ViewModels;
 using GHM.HR.API.Infrastructure.Data;
@@ -37,6 +39,7 @@ namespace GHM.HR.Infrastructure.Services
         private readonly IDbSession _dbSession;
         private readonly IHoursOffFundRepository _hoursOffFundRepository;
         private readonly IWorkShiftUsersRepository _workShiftUsersRepository;
+        private readonly IMultiCompanyRepository _multiCompanyRepository;
 
         public UserService(IUserRepository userRepository,
              IDepartmentRepository departmentRepository,
@@ -120,7 +123,7 @@ namespace GHM.HR.Infrastructure.Services
             return null;
         }
 
-        public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta)
+        public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta, List<MultiCompanyMeta> multiCompanies)
         {
             var userId = Guid.NewGuid().ToString();
 
@@ -149,6 +152,22 @@ namespace GHM.HR.Infrastructure.Services
             var leaveValidation = ValidateLeaveGranted(userMeta);
             if (leaveValidation != null)
                 return leaveValidation;
+
+            if (multiCompanies != null && multiCompanies.Any())
+            {
+                var doctorCodes = multiCompanies.Where(x => !string.IsNullOrEmpty(x.DoctorCode)).ToList();
+
+                foreach (var x in doctorCodes)
+                {
+                    var isMultiCompanyCodeExit = await _multiCompanyRepository.CheckExistDoctorCodeAsync(tenantId, userMeta.CompanyId, x.DoctorCode);
+                    if (isMultiCompanyCodeExit)
+                        return new ActionResultResponse<string>(-99, _ghmHRResource.GetString(ErrorMessage.Exists, _ghmHRResource.GetString("MultiCompanyCode")));
+                }
+
+
+
+            }
+
 
             var userInsert = new User
             {
