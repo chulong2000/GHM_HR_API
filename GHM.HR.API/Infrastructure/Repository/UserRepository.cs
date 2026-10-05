@@ -1824,5 +1824,25 @@ namespace GHM.HR.Infrastructure.Repository
                 return [];
             }
         }
+
+        public async Task<UserDayOffViewModel> GetDayoffAsync(string tenantId, string userId, DateTime startDate)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@UserId", userId);
+                return await con.QuerySingleOrDefaultAsync<UserDayOffViewModel>("[dbo].[spUser_GetDayoff]", param, commandType: CommandType.StoredProcedure);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_GetDayoff] GetDayoffAsync UserRepository Error.");
+                return new UserDayOffViewModel { Total = 0, TotalUsed = 0, TotalUnUsed = 0, AdvanceLeaveGranted = 0, IsActive = false };
+            }
+        }
     }
 }

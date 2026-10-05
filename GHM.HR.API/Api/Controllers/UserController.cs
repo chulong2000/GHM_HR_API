@@ -191,5 +191,23 @@ namespace GHM.HR.Api.Controllers
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Lay so phep ton cua nhan vien trong cong ty", Description = "Requires login verification!", OperationId = "GetDayoffWeb", Tags = ["User"])]
+        [Route("dayoff-web"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetDayoffByUserAsync(string userId, DateTime? startDate)
+        {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.GetDayoffAsync(tenantId, userId, startDate ?? DateTime.Now);
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Lay so gio cong con lai cua nhan vien trong cong ty, va tong so gio cua cac ca cua cong ty", Description = "Requires login verification!", OperationId = "GetHoursOffWeb", Tags = ["User"])]
+        [Route("houroff-web"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetHoursOffByUserAsync(string userId, DateTime startDate, DateTime endDate, TimeSpan? startTime, TimeSpan? endTime)
+        {
+            var result = await _userService.GetHoursOffAsync(CurrentUser.TenantId, userId, startDate, endDate, startTime, endTime);
+            return Ok(result);
+        }
+
+
     }
 }

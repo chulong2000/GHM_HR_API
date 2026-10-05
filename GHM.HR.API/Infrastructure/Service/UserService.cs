@@ -23,6 +23,7 @@ using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Infrastructure.Data;
 using GHM.HR.Domain.Constants;
 using GHM.HR.API.Domain.ViewModels;
+using GHM.HR.API.Infrastructure.Repository;
 
 namespace GHM.HR.Infrastructure.Services
 {
@@ -33,6 +34,8 @@ namespace GHM.HR.Infrastructure.Services
         private readonly IPositionRepository _positionRepository;
         private readonly IResourceService<GhmHRResource> _ghmHRResource;
         private readonly IDbSession _dbSession;
+        private readonly IHoursOffFundRepository _hoursOffFundRepository;
+        private readonly IWorkShiftUsersRepository _workShiftUsersRepository;
 
         public UserService(IUserRepository userRepository,
              IDepartmentRepository departmentRepository,
@@ -533,6 +536,44 @@ namespace GHM.HR.Infrastructure.Services
         public async Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date)
         {
             return await _userRepository.GetWorkScheduleasync(tenantId, companyId, userId, date);
+        }
+
+        public async Task<ActionResultResponse<UserDayOffViewModel>> GetDayoffAsync(string tenantId, string userId, DateTime startDate)
+        {
+            var model = await _userRepository.GetDayoffAsync(tenantId, userId, startDate);
+
+            return new ActionResultResponse<UserDayOffViewModel>
+            {
+                Code = 1,
+                Data = model
+            };
+        }
+
+        public async Task<UserHoursOffViewModel> GetHoursOffAsync(string tenantId, string userId, DateTime startDate, DateTime endDate, TimeSpan? startTime, TimeSpan? endTime)
+        {
+            var hourOff = await _hoursOffFundRepository.GetHoursOffAsync(tenantId, userId, startDate);
+
+            if (startTime.HasValue && endTime.HasValue)
+            {
+                // Kiểm tra khoảng thời gian có hợp lệ với ca làm việc không
+                var getCheckHour = await _workShiftUsersRepository.GetWorkShiftDetails(
+                    tenantId,
+                    null,
+                    userId,
+                    startDate,
+                    startTime.Value,
+                    endTime.Value);
+
+                if (getCheckHour.Status.Code > 0)
+                    hourOff.TotalMinute = getCheckHour.Status.TotalMinute;
+            }
+            else
+            {
+                var listDate = await _workShiftUsersRepository.CheckShiftOfUserAsync(tenantId, null, userId, startDate, endDate);
+                hourOff.TotalMinute = (int)listDate.Sum(x => x.PlannedMinutes);
+            }
+
+            return hourOff;
         }
     }
 }
