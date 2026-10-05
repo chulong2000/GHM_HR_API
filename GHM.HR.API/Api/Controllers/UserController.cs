@@ -204,10 +204,32 @@ namespace GHM.HR.Api.Controllers
         [Route("houroff-web"), AcceptVerbs("GET")]
         public async Task<IActionResult> GetHoursOffByUserAsync(string userId, DateTime startDate, DateTime endDate, TimeSpan? startTime, TimeSpan? endTime)
         {
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
             var result = await _userService.GetHoursOffAsync(CurrentUser.TenantId, userId, startDate, endDate, startTime, endTime);
             return Ok(result);
         }
 
 
+        [SwaggerOperation(Summary = "Lấy ra danh sách sinh nhật theo tháng", Description = "Requires login verification!", OperationId = "GetAllUsersBirthInMonth", Tags = new[] { "User" })]
+        [Route("get-all-birhtday"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetAllUsersBirthInMonth(
+            [FromQuery] string tenantId, 
+            [FromQuery] string companyId, 
+            [FromQuery] int? month, DataSourceLoadOptions loadOptions)
+        {
+            var data = await _userService.GetListUsersBirthdayInMonth(tenantId, companyId, month);
+            return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
+        }
+
+        [SwaggerOperation(Summary = "Lấy ra danh sách nhân viên nghỉ theo tháng", Description = "Requires login verification!", OperationId = "GetAllUsersBirthInMonth", Tags = new[] { "User" })]
+        [Route("get-all-resign"), AcceptVerbs("GET")]
+        public async Task<IActionResult> GetAllUsersResign(
+           [FromQuery] string tenantId,
+           [FromQuery] string companyId,
+           [FromQuery] int? month, DataSourceLoadOptions loadOptions)
+        {
+            var data = await _userService.GetListUsersResignInMonth(tenantId, companyId, month);
+            return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
+        }
     }
 }

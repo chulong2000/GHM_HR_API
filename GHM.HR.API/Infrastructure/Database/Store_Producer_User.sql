@@ -1926,3 +1926,45 @@ BEGIN
 		[CompanyId] = @CompanyId
 END 
 GO
+
+
+ALTER   PROCEDURE [dbo].[spUser_GetListUsersBirthdayInMonth]
+(
+   @Month AS INT = 06,
+   @TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+   @CompanyId AS Varchar(50) = '4eab0dbb-9d1d-424d-a28a-fca1405d4401' 
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	select u.Code, d.Id as DepartmentId, d.Name as DepartmentName, u.FullName, u.Birthday, u.Gender, DATEDIFF(year, u.Birthday, GETDATE()) as Age, u.JoinedDate  
+	       from dbo.Users as u
+           left join dbo.Departments as d on u.DepartmentId = d.Id 
+           where (@Month is null OR Month(u.Birthday) = @Month)
+		   and u.TenantId = @TenantId
+		   and (@CompanyId IS NULL or u.CompanyId = @CompanyId)
+		   and u.Status = 1
+           order by u.Birthday asc
+END 
+
+Create Or Alter   PROCEDURE [dbo].[spUser_GetListUsersResign]
+(
+   @Month AS INT = 06,
+   @TenantId AS VARCHAR(50) = 'dae13df6-6720-4bda-a61c-61e5e948017e',
+   @CompanyId AS Varchar(50) = '4eab0dbb-9d1d-424d-a28a-fca1405d4401' 
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	select u.Code, u.UserName, u.FullName, d.Name as DepartmentName, p.Name as PositionName, u.Gender, u.Birthday, u.JoinedDate 
+	       from dbo.Users as u
+           left join dbo.Departments as d on u.DepartmentId = d.Id 
+		   left join dbo.Positions as p on u.PositionId = p.Id
+           where (@Month is null OR Month(u.OutDate) = @Month)
+		   and u.TenantId = @TenantId
+		   and (@CompanyId IS NULL or u.CompanyId = @CompanyId)
+		   and u.Status = 0
+           order by u.Birthday asc
+END 

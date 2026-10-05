@@ -1844,5 +1844,51 @@ namespace GHM.HR.Infrastructure.Repository
                 return new UserDayOffViewModel { Total = 0, TotalUsed = 0, TotalUnUsed = 0, AdvanceLeaveGranted = 0, IsActive = false };
             }
         }
+
+        public async Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@Month", month);
+
+                var results = await con.QueryAsync<UserBirthdayViewModel>("[dbo].[spUser_GetListUsersBirthdayInMonth]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_GetListUsersBirthdayInMonth] GetListUsersBirthdayInMonth Error.");
+                return [];
+            }
+        }
+
+        public async Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@Month", month);
+
+                var results = await con.QueryAsync<UserResignedViewModel>("[dbo].[spUser_GetListUsersResign]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_GetListUsersResign] spUser_GetListUsersResign Error.");
+                return [];
+            }
+        }
     }
 }

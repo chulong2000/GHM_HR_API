@@ -1,4 +1,11 @@
 ﻿
+using GHM.HR.API.Domain.IRepository;
+using GHM.HR.API.Domain.Resources;
+using GHM.HR.API.Domain.ViewModels;
+using GHM.HR.API.Infrastructure.Data;
+using GHM.HR.API.Infrastructure.Repository;
+using GHM.HR.Domain;
+using GHM.HR.Domain.Constants;
 using GHM.HR.Domain.IRepository;
 using GHM.HR.Domain.IServices;
 using GHM.HR.Domain.ModelMetas;
@@ -17,13 +24,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GHM.HR.Domain;
-using GHM.HR.API.Domain.IRepository;
-using GHM.HR.API.Domain.Resources;
-using GHM.HR.API.Infrastructure.Data;
-using GHM.HR.Domain.Constants;
-using GHM.HR.API.Domain.ViewModels;
-using GHM.HR.API.Infrastructure.Repository;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GHM.HR.Infrastructure.Services
 {
@@ -40,6 +41,8 @@ namespace GHM.HR.Infrastructure.Services
         public UserService(IUserRepository userRepository,
              IDepartmentRepository departmentRepository,
              IPositionRepository positionRepository,
+             IHoursOffFundRepository hoursOffFundRepository,
+             IWorkShiftUsersRepository workShiftUsersRepository,
              IConfiguration configuration,
              IResourceService<GhmHRResource> ghmHRResource,
              IDbSession dbSession)
@@ -48,6 +51,8 @@ namespace GHM.HR.Infrastructure.Services
             _departmentRepository = departmentRepository;
             _positionRepository = positionRepository;
             _ghmHRResource = ghmHRResource;
+            _hoursOffFundRepository = hoursOffFundRepository;
+            _workShiftUsersRepository = workShiftUsersRepository;
             _dbSession = dbSession;
         }
 
@@ -574,6 +579,19 @@ namespace GHM.HR.Infrastructure.Services
             }
 
             return hourOff;
+        }
+
+       
+
+        public async Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(
+            string tenantId, string companyId, int? month)
+        {
+            return await _userRepository.GetListUsersBirthdayInMonth(tenantId, companyId, month);
+        }
+
+        public async Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month)
+        {
+            return await _userRepository.GetListUsersResignInMonth(tenantId, companyId, month);
         }
     }
 }

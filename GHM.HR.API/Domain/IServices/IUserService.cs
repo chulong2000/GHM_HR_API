@@ -33,5 +33,8 @@ namespace GHM.HR.Domain.IServices
 
         Task<UserHoursOffViewModel> GetHoursOffAsync(string tenantId, string userId, DateTime startDate, DateTime endDate, TimeSpan? startTime, TimeSpan? endTime);
         Task<ActionResultResponse<UserDayOffViewModel>> GetDayoffAsync(string tenantId, string userId, DateTime startDate);
+
+        Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month);
+        Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month);
     }
 }

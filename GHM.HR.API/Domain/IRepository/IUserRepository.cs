@@ -86,5 +86,12 @@ namespace GHM.HR.Domain.IRepository
         Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date);
 
         Task<UserDayOffViewModel> GetDayoffAsync(string tenantId, string id, DateTime startDate);
+
+
+        Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month);
+        Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month);
+
+
+
     }
 }
