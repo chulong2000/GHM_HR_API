@@ -17,5 +17,7 @@
         public string DoctorCode { get; set; }
 
         public DateTime CreateTime { get; set; }
+
+        public List<MultiCompanyMeta> multiCompanyMetas { get; set; }
     }
 }

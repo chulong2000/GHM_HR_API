@@ -28,7 +28,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                     await con.OpenAsync();
 
                 var sql = @"
-					 SELECT IIF (EXISTS (SELECT 1 FROM dbo.MultipleCompanys WHERE TenantId = @TenantId AND DoctorCode = @DoctorCode AND IsDelete = 0 AND IsActive = 1 AND CompanyId = @CompanyId), 1, 0)";
+					 SELECT IIF (EXISTS (SELECT 1 FROM dbo.MultipleCompanys WHERE TenantId = @TenantId AND DoctorCode = @DoctorCode AND CompanyId = @CompanyId), 1, 0)";
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, CompanyId = companyId, DoctorCode = doctorCode });
                 return result;

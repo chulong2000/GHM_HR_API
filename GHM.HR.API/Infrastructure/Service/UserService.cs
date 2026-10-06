@@ -123,7 +123,7 @@ namespace GHM.HR.Infrastructure.Services
             return null;
         }
 
-        public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta, List<MultiCompanyMeta> multiCompanies)
+        public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta)
         {
             var userId = Guid.NewGuid().ToString();
 
@@ -152,6 +152,8 @@ namespace GHM.HR.Infrastructure.Services
             var leaveValidation = ValidateLeaveGranted(userMeta);
             if (leaveValidation != null)
                 return leaveValidation;
+
+            var multiCompanies = userMeta.multiCompanyMetas;
 
             if (multiCompanies != null && multiCompanies.Any())
             {
