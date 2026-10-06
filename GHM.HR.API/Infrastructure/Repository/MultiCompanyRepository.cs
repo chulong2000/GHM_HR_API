@@ -1,9 +1,12 @@
 ﻿using Dapper;
 using GHM.HR.API.Domain.IRepository;
 using GHM.HR.API.Domain.Models;
+using GHM.HR.API.Domain.ViewModels;
 using GHM.HR.Domain.Models;
+using GHM.HR.Domain.ViewModels;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Data.SqlClient;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Xml.Linq;
 
@@ -28,7 +31,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                     await con.OpenAsync();
 
                 var sql = @"
-					 SELECT IIF (EXISTS (SELECT 1 FROM dbo.MultipleCompanys WHERE TenantId = @TenantId AND DoctorCode = @DoctorCode AND IsDelete = 0 AND IsActive = 1 AND CompanyId = @CompanyId), 1, 0)";
+					 SELECT IIF (EXISTS (SELECT 1 FROM dbo.MultipleCompanys WHERE TenantId = @TenantId AND DoctorCode = @DoctorCode AND CompanyId = @CompanyId), 1, 0)";
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, CompanyId = companyId, DoctorCode = doctorCode });
                 return result;
@@ -120,6 +123,78 @@ namespace GHM.HR.API.Infrastructure.Repository
 
             return table;
         }
-    
+
+        public async Task<int> InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable)
+        {
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@TenantId", tenantId);
+                    param.Add("@UserId", userId);
+                    param.Add("@CreatorId", creatorId);
+                    param.Add("@CreatorFullName", creatorFullName);
+                    param.Add("@List", dataTable.AsTableValuedParameter("[dbo].[MultipleCompanyType]"));
+                    rowAffected = await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertManyData]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected; 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spMultipleCompanys_InsertManyData] InsertAsync DepartmentRepository Error.");
+                return 0;
+            }
+        }
+
+        public async Task<List<MultipleCompanySearchViewModel>> GetMultiCompaniesAsync(string tenantId, string companyId, string userId)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@UserId", userId);
+                var results = await con.QueryAsync<MultipleCompanySearchViewModel>("[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]  spMultipleCompanys_SearchMultiCompanyForUser Error.");
+                return new List<MultipleCompanySearchViewModel>();
+            }
+        }
+
+        public async Task<int> ForceDeleteByUserIdAsync(string tenantId, string userId)
+        {
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@UserId", userId);
+                    param.Add("@TenantId", tenantId);
+                    rowAffected = await con.ExecuteAsync("[dbo].[spMultiCompany_ForceDeleteByUserId]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spMultiCompany_ForceDeleteByUserId] ForceDeleteByUserIdAsync MultiCompanyRepository Error.");
+                return -1;
+            }
+        }
     }
 }

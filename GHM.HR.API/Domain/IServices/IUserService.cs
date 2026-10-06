@@ -20,7 +20,7 @@ namespace GHM.HR.Domain.IServices
         Task<List<UserResignedViewModel>> SearchUserResignedAsync(string tenantId, string companyId, bool isAll, int month);
         Task<List<UserSearchViewModel>> SelectAllUsersByCompanyDepartmentAsync(string tenantId, string companyId,int departmentId);
         Task<List<UserSearchViewModel>> SelectAllUsersByFineFormulaAsync(string tenantId, string companyId, string fineFormulaId);
-        Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta, List<MultiCompanyMeta> multiCompanies);
+        Task<ActionResultResponse<string>> InsertAsync(string tenantId, string creatorId, string creatorFullName, string creatorAvatar, UserMeta userMeta);
         Task<ActionResultResponse<string>> UpdateAsync(string tenantId, string lastUpdateUserId, string lastUpdateFullName, string lastUpdateAvatar, string id, UserMeta userMeta);
         Task<ActionResultResponse> DeleteAsync(string tenantId, string deleteUserId, string deleteFullName, string deleteAvatar, string id);
         Task<ActionResultResponse<UserDetailViewModel>> GetDetailAsync(string tenantId, string id);
