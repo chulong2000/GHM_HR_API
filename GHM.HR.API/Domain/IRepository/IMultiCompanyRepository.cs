@@ -1,5 +1,8 @@
-﻿using GHM.HR.API.Domain.Models;
+﻿using GHM.HR.API.Domain.ModelMetas;
+using GHM.HR.API.Domain.Models;
 using GHM.HR.Domain.Models;
+using GHM.HR.Domain.ViewModels;
+using System.Data;
 
 namespace GHM.HR.API.Domain.IRepository
 {
@@ -7,6 +10,11 @@ namespace GHM.HR.API.Domain.IRepository
     {
         Task<bool> CheckExistDoctorCodeAsync(string tenantId, string companyId, string doctorCode);
 
-        Task<List<string>> InsertBulkAsync(List<MultiCompany> users);
+        Task<int> InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable);
+
+        Task<List<MultipleCompanySearchViewModel>> GetMultiCompaniesAsync(string tenantId, string companyId,string userId);
+
+        Task<int> ForceDeleteByUserIdAsync(string tenantId, string userId);
+
     }
 }

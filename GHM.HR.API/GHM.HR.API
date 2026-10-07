@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GHM.HR.API", "GHM.HR.API.csproj", "{D8A24D23-3FC9-42F7-B177-CF55762DA315}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GHM.HR.API", "GHM.HR.API.csproj", "{D9188920-350A-4185-B6C6-73B8C139EB83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D8A24D23-3FC9-42F7-B177-CF55762DA315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8A24D23-3FC9-42F7-B177-CF55762DA315}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8A24D23-3FC9-42F7-B177-CF55762DA315}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8A24D23-3FC9-42F7-B177-CF55762DA315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9188920-350A-4185-B6C6-73B8C139EB83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9188920-350A-4185-B6C6-73B8C139EB83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9188920-350A-4185-B6C6-73B8C139EB83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9188920-350A-4185-B6C6-73B8C139EB83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {23972ACB-80F8-4DBE-A4EE-9C9E2166BB85}
+		SolutionGuid = {0D5471E4-28D7-4E49-9479-304F4843F359}
 	EndGlobalSection
 EndGlobal

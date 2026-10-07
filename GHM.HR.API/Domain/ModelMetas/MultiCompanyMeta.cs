@@ -2,15 +2,17 @@
 {
     public class MultiCompanyMeta
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
-        public Guid DepartmentId { get; set; }
+        public string CompanyId { get; set; }
+
+        public string DepartmentId { get; set; }
 
         public string DepartmentName { get; set; }
 
-        public Guid PositionId { get; set; }
+        public string PositionId { get; set; }
 
         public string PositionName { get; set; }    
 
@@ -18,6 +20,5 @@
 
         public DateTime CreateTime { get; set; }
 
-        public List<MultiCompanyMeta> multiCompanyMetas { get; set; }
     }
 }
