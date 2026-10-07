@@ -95,9 +95,10 @@ namespace GHM.HR.Api.Controllers
 
         [SwaggerOperation(Summary = "Update information user.", Description = "Requires login verification!", OperationId = "UpdateUser", Tags = new[] { "User" })]
         [Route("{id}"), AcceptVerbs("PUT"), ValidateModel]
-        public async Task<IActionResult> UpdateAsync(string id, [FromBody] UserMeta userMeta)
+        public async Task<IActionResult> UpdateAsync(string tenantId, string id, [FromBody] UserMeta userMeta)
         {
-            var result = await _userService.UpdateAsync(CurrentUser.TenantId, CurrentUser.Id, CurrentUser.FullName, CurrentUser.Avatar, id, userMeta);
+           
+            var result = await _userService.UpdateAsync(tenantId, CurrentUser.Id, CurrentUser.FullName, CurrentUser.Avatar, id, userMeta);
             if (result.Code <= 0)
             {
                 _logger.LogError("Update user controller code");
@@ -123,7 +124,8 @@ namespace GHM.HR.Api.Controllers
         [Route("{id}"), AcceptVerbs("GET")]
         public async Task<IActionResult> DetailAsync(string id)
         {
-            var result = await _userService.GetDetailAsync(CurrentUser.TenantId, id);
+            string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var result = await _userService.GetDetailAsync(tenantId, id);
             if (result.Code <= 0)
             {
                 _logger.LogError("Get detail user controller code");

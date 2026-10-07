@@ -47,6 +47,7 @@ namespace GHM.HR.Infrastructure.Services
              IHoursOffFundRepository hoursOffFundRepository,
              IWorkShiftUsersRepository workShiftUsersRepository,
              IConfiguration configuration,
+             IMultiCompanyRepository multiCompanyRepository,
              IResourceService<GhmHRResource> ghmHRResource,
              IDbSession dbSession)
         {
@@ -56,6 +57,7 @@ namespace GHM.HR.Infrastructure.Services
             _ghmHRResource = ghmHRResource;
             _hoursOffFundRepository = hoursOffFundRepository;
             _workShiftUsersRepository = workShiftUsersRepository;
+            _multiCompanyRepository = multiCompanyRepository;
             _dbSession = dbSession;
         }
 
@@ -153,21 +155,6 @@ namespace GHM.HR.Infrastructure.Services
             if (leaveValidation != null)
                 return leaveValidation;
 
-            var multiCompanies = userMeta.MultiCompanyMetas;
-            if (multiCompanies.Any())
-            {
-                var doctorCodes = multiCompanies.Where(x => !string.IsNullOrEmpty(x.DoctorCode)).ToList();
-
-                foreach (var x in doctorCodes)
-                {
-                    var isMultiCompanyCodeExit = await _multiCompanyRepository.CheckExistDoctorCodeAsync(tenantId, userMeta.CompanyId, x.DoctorCode);
-                    if (isMultiCompanyCodeExit)
-                        return new ActionResultResponse<string>(-99, _ghmHRResource.GetString(ErrorMessage.Exists, _ghmHRResource.GetString("MultiCompanyCode")));
-                }
-
-            }
-
-
             var userInsert = new User
             {
                 Id = userId,
@@ -235,23 +222,23 @@ namespace GHM.HR.Infrastructure.Services
             if (result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
-            if (multiCompanies.Any())
+
+            var multiCompanies = userMeta.MultiCompanyMetas;
+            if (multiCompanies != null && multiCompanies.Any())
             {
                 DataTable dt = new();
                 dt.Columns.Add("CompanyId", typeof(string));
                 dt.Columns.Add("DepartmentId", typeof(int));
                 dt.Columns.Add("PositionId", typeof(string));
                 dt.Columns.Add("DoctorCode", typeof(string));
+                //dt.Columns.Add("TenantId", typeof(string));
                 var multipleCompanys = userMeta.MultiCompanyMetas.DistinctBy(x => new { x.CompanyId, x.DepartmentId, x.PositionId, x.DoctorCode }).ToList();
                 foreach (var item in multipleCompanys)
                 {
-                    dt.Rows.Add(item.CompanyId, item.DepartmentId, item.PositionId, item.DoctorCode);
+                    dt.Rows.Add(item.CompanyId, tenantId, item.DepartmentId, item.PositionId, item.DoctorCode);
                 }
-                var multiCompanyResult = await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, userInsert.Id, creatorId, creatorFullName, dt);
-                if (multiCompanyResult <= 0)
-                {
-                    return new ActionResultResponse<string>(multiCompanyResult, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
-                }
+                await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, userInsert.Id, creatorId, creatorFullName, dt);
+                
             }
 
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString("UserAddedSuccessfully"));
@@ -354,31 +341,23 @@ namespace GHM.HR.Infrastructure.Services
             if (result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
-            //var multiCompanies = userMeta.MultiCompanyMetas.ToList();
+            var multiCompanies = userMeta.MultiCompanyMetas;
+            if (multiCompanies!= null &&  multiCompanies.Any())
+            {
+                DataTable dt = new();
+                dt.Columns.Add("CompanyId", typeof(string));
+                dt.Columns.Add("DepartmentId", typeof(int));
+                dt.Columns.Add("PositionId", typeof(string));
+                dt.Columns.Add("DoctorCode", typeof(string));
+                var multipleCompanys = userMeta.MultiCompanyMetas.DistinctBy(x => new { x.CompanyId, x.DepartmentId, x.PositionId, x.DoctorCode }).ToList();
+                foreach (var item in multipleCompanys)
+                {
+                    dt.Rows.Add(item.CompanyId, item.DepartmentId, item.PositionId, item.DoctorCode);
+                }
+                await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, info.Id, lastUpdateUserId, lastUpdateFullName, dt);
 
-            //if (multiCompanies is not null && multiCompanies.Any())
-            //{
-               
-            //    var existingCompaniesOfUser = await _multiCompanyRepository.GetMultiCompaniesAsync(tenantId, userMeta.CompanyId, id);
+            }
 
-            //    var multiCompaniesToAdd = multiCompanies.Where(x => x.Id == null).ToList();
-
-            //    var multiCompaniesIdToDeleteOfUser = existingCompaniesOfUser.Where(x => !multiCompanies.Any(mc => mc.Id == x.Id))
-            //                                                        .Select(x => x.Id)
-            //                                                        .ToList();
-
-            //    var multiCompaniesToUpdate = multiCompanies
-            //                                              .Where(x => x.Id != null
-            //                                                     && existingCompaniesOfUser.Any(ec => ec.Id == x.Id
-            //                                                     && (ec.CompanyId != x.CompanyId
-            //                                                         || ec.DepartmentId != x.DepartmentId
-            //                                                         || ec.PositionId != x.PositionId
-            //                                                         || ec.DoctorCode != x.DoctorCode
-            //                                                         )))
-            //                                              .ToList();
-            //}
-
-    
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString("Successful"));
         }
 
@@ -416,6 +395,8 @@ namespace GHM.HR.Infrastructure.Services
 
             if (info.TenantId != tenantId)
                 return new ActionResultResponse<UserDetailViewModel>(-3, _ghmHRResource.GetString(ErrorMessage.NotHavePermission));
+
+            var multipleCompanys = await _multiCompanyRepository.GetInfoAsync(tenantId, id);
 
             var userDetail = new UserDetailViewModel
             {
@@ -471,6 +452,24 @@ namespace GHM.HR.Infrastructure.Services
                 PersonnelStatus = info.PersonnelStatus,
                 ExpireDays = info.ExpireDays
             };
+
+            if (multipleCompanys != null && multipleCompanys.Any())
+            {
+                userDetail.MultiCompanyMetas = multipleCompanys
+                    .Select(x => new MultipleCompanySearchViewModel()
+                    {
+                        Id = x.Id,
+                        UserId = x.UserId,
+                        CompanyId = x.CompanyId,
+                        DepartmentId = x.DepartmentId,
+                        DepartmentName = x.DepartmentName,
+                        PositionId = x.PositionId,
+                        PositionName = x.PositionName,
+                        DoctorCode = x.DoctorCode
+                    })
+                    .ToList();
+                    
+            }
 
             return new ActionResultResponse<UserDetailViewModel>
             {

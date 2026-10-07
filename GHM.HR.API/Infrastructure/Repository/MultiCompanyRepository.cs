@@ -124,7 +124,7 @@ namespace GHM.HR.API.Infrastructure.Repository
             return table;
         }
 
-        public async Task<int> InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable)
+        public async Task InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable)
         {
             try
             {
@@ -140,14 +140,12 @@ namespace GHM.HR.API.Infrastructure.Repository
                     param.Add("@CreatorId", creatorId);
                     param.Add("@CreatorFullName", creatorFullName);
                     param.Add("@List", dataTable.AsTableValuedParameter("[dbo].[MultipleCompanyType]"));
-                    rowAffected = await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertManyData]", param, commandType: CommandType.StoredProcedure);
+                    await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertByTableType]", param, commandType: CommandType.StoredProcedure);
                 }
-                return rowAffected; 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[dbo].[spMultipleCompanys_InsertManyData] InsertAsync DepartmentRepository Error.");
-                return 0;
             }
         }
 
@@ -194,6 +192,28 @@ namespace GHM.HR.API.Infrastructure.Repository
             {
                 _logger.LogError(ex, "[dbo].[spMultiCompany_ForceDeleteByUserId] ForceDeleteByUserIdAsync MultiCompanyRepository Error.");
                 return -1;
+            }
+        }
+
+        public async Task<List<MultiCompany>> GetInfoAsync(string tenantId, string userId)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@UserId", userId);
+                param.Add("@TenantId", tenantId);
+                var results = await con.QueryAsync<MultiCompany>("[dbo].[spMultiCompany_GetAllCompanyOfUser]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spMultiCompany_GetAllCompanyOfUser] GetInfoAsyncMultiCompanyRepository Error.");
+                Console.WriteLine(ex.ToString());
+                return new List<MultiCompany>();
             }
         }
     }

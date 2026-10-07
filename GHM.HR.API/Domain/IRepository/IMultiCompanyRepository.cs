@@ -10,11 +10,13 @@ namespace GHM.HR.API.Domain.IRepository
     {
         Task<bool> CheckExistDoctorCodeAsync(string tenantId, string companyId, string doctorCode);
 
-        Task<int> InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable);
+        Task InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable);
 
         Task<List<MultipleCompanySearchViewModel>> GetMultiCompaniesAsync(string tenantId, string companyId,string userId);
 
         Task<int> ForceDeleteByUserIdAsync(string tenantId, string userId);
+
+        Task<List<MultiCompany>> GetInfoAsync(string tenantId, string userId);
 
     }
 }

@@ -1,3 +1,4 @@
+using GHM.HR.API.Domain.ModelMetas;
 using GHM.HR.Domain.Constants;
 using GHM.HR.Domain.ModelMetas;
 using System;
@@ -57,7 +58,8 @@ namespace GHM.HR.Domain.ViewModels
         public DateTime? ContractExpirationDate { get; set; }
 		public PersonnelStatus PersonnelStatus { get; set; }
         public int? ExpireDays { get; set; }
-        public List<MultipleCompanySearchViewModel> MultipleCompanys { get; set; }
+        public List<MultipleCompanySearchViewModel> MultiCompanyMetas { get; set; }
+
     }
 
 }
