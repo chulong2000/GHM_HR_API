@@ -1760,7 +1760,12 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<(int, int)?>> CountByRelationshipAsync(string companyId, BriefUser currentUser, CancellationToken cancellationToken)
         {
-            const string sql = """
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+                const string sql = """
                                SELECT u.Status, COUNT(u.Id) AS Total 
                                FROM [dbo].[Users] u
                                WHERE u.CompanyId = @CompanyId
@@ -1768,14 +1773,18 @@ namespace GHM.HR.Infrastructure.Repository
                                  AND u.IsDelete = 0
                                GROUP BY u.Status;
                                """;
-            var parameters = new DynamicParameters();
-            parameters.Add("@CompanyId", companyId);
-            parameters.Add("@TenantId", currentUser.TenantId);
+                DynamicParameters param = new();
+                param.Add("@CompanyId", companyId);
+                param.Add("@TenantId", currentUser.TenantId);
 
-            await using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync(cancellationToken);
-            var result = await connection.QueryAsync<(int Status, int Total)?>(sql, parameters);
-            return result.ToList();
+                var result = await con.QueryAsync<(int Status, int Total)?>(sql, param);
+                return result.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CountByRelationshipAsync UserRepository Error.");
+                return new List<(int, int)?>();
+            }
         }
 
         public async Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId)
