@@ -35,7 +35,7 @@ namespace GHM.HR.Domain.ModelMetas
         public DateTime? ContractExpirationDate { get; set; }
         public PersonnelStatus PersonnelStatus { get; set; }
         public int? ExpireDays { get; set; }
-        public List<MultiCompanyMeta> MultiCompanyMetas { get; set; }
+        public List<MultiCompanyMeta>? MultiCompanyMetas { get; set; }
 
     }
 }

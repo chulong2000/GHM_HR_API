@@ -340,21 +340,20 @@ namespace GHM.HR.Infrastructure.Services
             if (result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
-            var multiCompanies = userMeta.MultiCompanyMetas;
-            if (multiCompanies!= null)
+            DataTable dt = new();
+            dt.Columns.Add("CompanyId", typeof(string));
+            dt.Columns.Add("DepartmentId", typeof(int));
+            dt.Columns.Add("PositionId", typeof(string));
+            dt.Columns.Add("DoctorCode", typeof(string));
+
+            var multipleCompanys = userMeta.MultiCompanyMetas?.DistinctBy(x => new { x.CompanyId, x.DepartmentId, x.PositionId, x.DoctorCode }).ToList() ?? [];
+
+            foreach (var item in multipleCompanys)
             {
-                DataTable dt = new();
-                dt.Columns.Add("CompanyId", typeof(string));
-                dt.Columns.Add("DepartmentId", typeof(int));
-                dt.Columns.Add("PositionId", typeof(string));
-                dt.Columns.Add("DoctorCode", typeof(string));
-                var multipleCompanys = multiCompanies.DistinctBy(x => new { x.CompanyId, x.DepartmentId, x.PositionId, x.DoctorCode }).ToList();
-                foreach (var item in multipleCompanys)
-                {
-                    dt.Rows.Add(item.CompanyId, item.DepartmentId, item.PositionId, item.DoctorCode);
-                }
-                await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, info.Id, lastUpdateUserId, lastUpdateFullName, dt);
+               dt.Rows.Add(item.CompanyId, item.DepartmentId, item.PositionId, item.DoctorCode);
             }
+
+            await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, info.Id, lastUpdateUserId, lastUpdateFullName, dt);
 
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString("Successful"));
         }
