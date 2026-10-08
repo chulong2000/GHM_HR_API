@@ -4,7 +4,7 @@ namespace GHM.HR.Domain.ViewModels
 {
     public class MultipleCompanySearchViewModel
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string UserId { get; set; }
         public string CompanyId { get; set; }
         public string? DepartmentId { get; set; }
