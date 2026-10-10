@@ -37,5 +37,7 @@ namespace GHM.HR.Domain.IServices
 
         Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month);
         Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month);
+
+      
     }
 }

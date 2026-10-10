@@ -91,6 +91,8 @@ namespace GHM.HR.Domain.IRepository
         Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month);
         Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month);
 
+        Task<bool> CheckManagerOfUserwhenUpdate(string tenantId, string companyId, string userId, string managerId);
+
 
 
     }

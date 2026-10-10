@@ -31,6 +31,8 @@ namespace GHM.HR.Domain.ModelMetas
         public bool IsActive { get; set; }
         public string Note { get; set; }
         public int? AdvanceLeaveGranted { get; set; }
+
+        public string ConcurrencyStamp { get; set; }
         public int? CompLeaveGranted { get; set; }
         public DateTime? ContractExpirationDate { get; set; }
         public PersonnelStatus PersonnelStatus { get; set; }

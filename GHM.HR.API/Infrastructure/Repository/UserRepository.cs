@@ -1762,28 +1762,28 @@ namespace GHM.HR.Infrastructure.Repository
         {
             try
             {
-                using SqlConnection con = new(_connectionString);
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
                 const string sql = """
-                               SELECT u.Status, COUNT(u.Id) AS Total 
+                               SELECT u.PersonnelStatus, COUNT(u.Id) AS Total 
                                FROM [dbo].[Users] u
                                WHERE u.CompanyId = @CompanyId
                                  AND u.TenantId = @TenantId
                                  AND u.IsDelete = 0
-                               GROUP BY u.Status;
+                               GROUP BY u.PersonnelStatus;
                                """;
-                DynamicParameters param = new();
-                param.Add("@CompanyId", companyId);
-                param.Add("@TenantId", currentUser.TenantId);
+                var parameters = new DynamicParameters();
+                parameters.Add("@CompanyId", companyId);
+                parameters.Add("@TenantId", currentUser.TenantId);
 
-                var result = await con.QueryAsync<(int Status, int Total)?>(sql, param);
+                await using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync(cancellationToken);
+                var result = await connection.QueryAsync<(int, int)?>(sql, parameters);
                 return result.ToList();
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CountByRelationshipAsync UserRepository Error.");
-                return new List<(int, int)?>();
+                return [];
             }
         }
 
@@ -1897,6 +1897,34 @@ namespace GHM.HR.Infrastructure.Repository
             {
                 _logger.LogError(ex, "[dbo].[spUser_GetListUsersResign] spUser_GetListUsersResign Error.");
                 return [];
+            }
+        }
+
+        public async Task<bool> CheckManagerOfUserwhenUpdate(string tenantId,
+                                                             string companyId,
+                                                             string userId,
+                                                             string managerId)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@UserId", userId);
+                param.Add("@ManagerId", managerId);
+
+                var results = await con.QueryAsync<bool>("[dbo].[spUser_CheckManagerIdWhenUpdate]", param, commandType: CommandType.StoredProcedure);
+                return results.FirstOrDefault();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spUser_CheckManagerIdWhenUpdate] spUser_CheckManagerIdWhenUpdate Error.");
+                return false;
             }
         }
     }

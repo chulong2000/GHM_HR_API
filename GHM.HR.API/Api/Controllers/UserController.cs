@@ -69,6 +69,7 @@ namespace GHM.HR.Api.Controllers
         [HttpGet("count-by-relationship")]
         public async Task<IActionResult> CountByRelationship(string companyId, CancellationToken cancellationToken)
         {
+            
             var result = await _userService.CountByRelationshipAsync(companyId, CurrentUser, cancellationToken);
             if (result.Code <= 0)
             {

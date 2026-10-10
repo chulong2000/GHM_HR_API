@@ -254,7 +254,6 @@ namespace GHM.HR.Infrastructure.Services
             if (isUserNameExit)
                 return new ActionResultResponse<string>(-4, _ghmHRResource.GetString(ErrorMessage.Exists, _ghmHRResource.GetString("UserName")));
 
-
             if (!string.IsNullOrEmpty(userMeta.PhoneNumber))
             {
                 var isPhoneNumberExit = await _userRepository.CheckExistsByPhoneNumberAsync(tenantId, id, userMeta.PhoneNumber?.Trim());
@@ -325,6 +324,11 @@ namespace GHM.HR.Infrastructure.Services
                 var managerUser = await _userRepository.GetInfoAsync(userMeta.ManagerUserId);
                 if (managerUser == null || managerUser.IsActive == false)
                     return new ActionResultResponse<string>(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("ManagerUser")));
+
+                var checkManager = await _userRepository.CheckManagerOfUserwhenUpdate(tenantId, info.CompanyId, info.Id, managerUser.Id);
+                if (checkManager)
+                    return new ActionResultResponse<string>(-8, _ghmHRResource.GetString(ErrorMessage.Notaccepted, _ghmHRResource.GetString("ManagerUser")));
+
                 info.ManagerUserId = managerUser.Id;
                 info.ManagerFullName = managerUser.FullName;
 
@@ -573,8 +577,7 @@ namespace GHM.HR.Infrastructure.Services
       
         public async Task<ActionResultResponse<UserCountByRelationshipViewModel>> CountByRelationshipAsync(string companyId, BriefUser currentUser, CancellationToken cancellationToken)
         {
-            try
-            {
+           
                 var result = await _userRepository.CountByRelationshipAsync(companyId, currentUser, cancellationToken);
                 return new ActionResultResponse<UserCountByRelationshipViewModel>
                 {
@@ -587,11 +590,6 @@ namespace GHM.HR.Infrastructure.Services
                         Freelancer = result.FirstOrDefault(x => x?.Item1 == (int)UserStatus.Freelancer)?.Item2 ?? 0,
                     }
                 };
-            }
-            catch
-            {
-                return new ActionResultResponse<UserCountByRelationshipViewModel>(-1, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
-            }
         }
 
         public async Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId)
@@ -654,5 +652,6 @@ namespace GHM.HR.Infrastructure.Services
         {
             return await _userRepository.GetListUsersResignInMonth(tenantId, companyId, month);
         }
+
     }
 }
