@@ -1,4 +1,5 @@
 ﻿using DevExtreme.AspNet.Data;
+using GHM.HR.API.Infrastructure.SearchRemote;
 using GHM.HR.Domain;
 using GHM.HR.Domain.IServices;
 using GHM.HR.Domain.ModelMetas;
@@ -18,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using DataSourceLoadOptions = GHM.Infrastructure.SearchRemote.DataSourceLoadOptions;
 
 namespace GHM.HR.Api.Controllers
 {
@@ -40,7 +42,8 @@ namespace GHM.HR.Api.Controllers
 
         [SwaggerOperation(Summary = "Search Remote information user birthday", Description = "Requires login verification!", OperationId = "SearchRemoteUserBirthday", Tags = new[] { "User" })]
         [Route("search-birthday/{companyId}"), AcceptVerbs("GET")]
-        public async Task<IActionResult> SearchAsync(string companyId, int? month, DataSourceLoadOptions loadOptions)
+        public async Task<IActionResult> SearchAsync(string companyId, int? month, 
+            DataSourceLoadOptions loadOptions)
         {
             string tenantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
             var data = await _userService.SearchUserBirthdayAsync(tenantId, companyId, month);

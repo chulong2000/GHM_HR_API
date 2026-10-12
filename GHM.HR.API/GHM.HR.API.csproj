@@ -11,6 +11,7 @@
     <PackageReference Include="Autofac" Version="9.3.4" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
     <PackageReference Include="Dapper" Version="2.1.86" />
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="4.0.0" />
     <PackageReference Include="FluentValidation" Version="12.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
@@ -23,9 +24,7 @@
     <Folder Include="Domain\Constants\" />
   </ItemGroup>
 
-
-<ItemGroup>
-  <ProjectReference Include="C:\Users\user\Documents\Source Code C#\Source Code HR_GHM\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
-</ItemGroup>
-
+	<ItemGroup>
+		<ProjectReference Include="C:\Users\deptraitoc2mai\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+	</ItemGroup>
 </Project>
