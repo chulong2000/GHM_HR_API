@@ -357,6 +357,11 @@ namespace GHM.HR.Infrastructure.Services
                dt.Rows.Add(item.CompanyId, item.DepartmentId, item.PositionId, item.DoctorCode);
             }
 
+            var checkDoctorCode = await _multiCompanyRepository.CheckDoctorCode(tenantId, userMeta.CompanyId, dt);
+
+            if (checkDoctorCode?.HasDuplicate == true) 
+                return new ActionResultResponse<string>(-9, _ghmHRResource.GetString(ErrorMessage.DuplicateDoctorCode, string.Join(", ", checkDoctorCode.Duplicates.Select(x => x.DoctorCode))));
+
             await _multiCompanyRepository.InsertMultiCompanyAsync(tenantId, info.Id, lastUpdateUserId, lastUpdateFullName, dt);
 
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString("Successful"));

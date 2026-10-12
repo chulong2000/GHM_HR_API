@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.Data.SqlClient;
 using System.ComponentModel.Design;
 using System.Data;
+using System.Data.Common;
 using System.Xml.Linq;
 
 namespace GHM.HR.API.Infrastructure.Repository
@@ -213,6 +214,34 @@ namespace GHM.HR.API.Infrastructure.Repository
                 _logger.LogError(ex, "[dbo].[spMultiCompany_GetAllCompanyOfUser] GetInfoAsyncMultiCompanyRepository Error.");
                 Console.WriteLine(ex.ToString());
                 return new List<MultiCompany>();
+            }
+        }
+
+        public async Task<CheckDoctorCodeResult> CheckDoctorCode(string tenantId, string companyId, DataTable dataTable)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@List", dataTable.AsTableValuedParameter("[dbo].[MultipleCompanyType]"));
+                param.Add("@DuplicateCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                var results = await con.QueryAsync<DoctorCodeDuplicateDto>(
+                                               "dbo.spMultipleCompanys_CheckDoctorCode", param,
+                                                commandType: CommandType.StoredProcedure);
+                var count = param.Get<int>("@DuplicateCount");
+
+                return new CheckDoctorCodeResult(count, results.ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spMultipleCompanys_CheckDoctorCode] GetInfoAsyncMultiCompanyRepository Error.");
+                return null;
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using GHM.HR.API.Domain.ModelMetas;
 using GHM.HR.API.Domain.Models;
+using GHM.HR.API.Domain.ViewModels;
 using GHM.HR.Domain.Models;
 using GHM.HR.Domain.ViewModels;
 using System.Data;
@@ -18,5 +19,6 @@ namespace GHM.HR.API.Domain.IRepository
 
         Task<List<MultiCompany>> GetInfoAsync(string tenantId, string userId);
 
+        Task<CheckDoctorCodeResult> CheckDoctorCode(string tenantId, string companyId, DataTable dataTable);
     }
 }
