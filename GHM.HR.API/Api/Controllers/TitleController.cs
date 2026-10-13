@@ -9,7 +9,7 @@ using GHM.HR.API.Domain.ModelMetas;
 
 namespace GHM.HR.API.Api.Controllers
 {
-    [Authorize]
+ 
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/Titles")]
