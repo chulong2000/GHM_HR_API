@@ -23,6 +23,56 @@ namespace GHM.HR.API.Infrastructure.Repository
             _cache = cache;
         }
 
+        public async Task<int> DeleteAsync(string tenantId, string companyId, string id)
+        {
+
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@Id", id);
+                    param.Add("@CompanyId", companyId);
+                    param.Add("@TenantId", tenantId);
+                    rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_DeleteByID]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_DeleteByID] DeleteAsync WorkScheduleRepository Error.");
+                return -1;
+            }
+        }
+
+        public async Task<List<WorkScheduleViewModel>> GetAllScheduleInMonthOfUser(string tenantId, string companyId, string userId, int year, int month)
+        {
+            try
+            {
+                using SqlConnection con = new(_connectionString);
+                if (con.State == ConnectionState.Closed)
+                    await con.OpenAsync();
+
+                DynamicParameters param = new();
+                param.Add("@TenantId", tenantId);
+                param.Add("@CompanyId", companyId);
+                param.Add("@UserId", userId);
+                param.Add("@Year", year);
+                param.Add("@Month", month);
+                var results = await con.QueryAsync<WorkScheduleViewModel>("[dbo].[spWorkSchedule_SelectWorkDayByMonth]", param, commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_GetAllInMonthOfUser] GetAllScheduleInMonthOfUser WorkScheduleRepository Error.");
+                return new List<WorkScheduleViewModel>();
+            }
+        }
+
         public async Task<int> InsertAsync(WorkSchedule workSchedule)
         {
             try
@@ -42,6 +92,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                     param.Add("@CreateId", workSchedule.CreateId);
                     param.Add("@CreateFullName", workSchedule.CreateFullName);
                     param.Add("@CompanyId", workSchedule.CompanyId);
+                    param.Add("@UserId", workSchedule.UserId);
                     param.Add("@TenantId", workSchedule.TenantId);
                     param.Add("@Year", workSchedule.Year);
                     

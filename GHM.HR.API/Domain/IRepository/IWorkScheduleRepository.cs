@@ -8,5 +8,10 @@ namespace GHM.HR.API.Domain.IRepository
     public interface IWorkScheduleRepository
     {
         Task<int> InsertAsync(WorkSchedule workSchedule);
+
+        Task<int> DeleteAsync(string tenantId, string companyId, string id);
+
+        Task<List<WorkScheduleViewModel>> GetAllScheduleInMonthOfUser(string tenantId, string companyId, string userId, int year, int month);
+
     }
 }

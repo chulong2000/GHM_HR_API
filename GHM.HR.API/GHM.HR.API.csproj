@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Infrastructure\Database\Store_Producer_WorkSchedule.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="9.3.4" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
     <PackageReference Include="Dapper" Version="2.1.86" />
@@ -25,6 +29,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="C:\Users\user\Documents\Source Code C#\Source Code HR_GHM\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
+		<ProjectReference Include="C:\Users\deptraitoc2mai\Documents\Source Code GHM Backend\hrm-api\GHM.Infrastructure\GHM.Infrastructure.csproj" />
 	</ItemGroup>
 </Project>
