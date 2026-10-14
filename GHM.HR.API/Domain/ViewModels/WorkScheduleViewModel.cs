@@ -4,6 +4,8 @@
     {
         public DateTime WorkDay { get; set; }
 
+        public string HolidayName { get; set; }
+
         public string ShiftName { get; set; }
 
         public TimeSpan StartTime { get; set; }

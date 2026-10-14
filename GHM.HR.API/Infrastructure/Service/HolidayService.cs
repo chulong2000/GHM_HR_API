@@ -1,0 +1,88 @@
+﻿using GHM.HR.API.Domain.IRepository;
+using GHM.HR.API.Domain.IServices;
+using GHM.HR.API.Domain.Models;
+using GHM.HR.API.Domain.Resources;
+using GHM.HR.API.Infrastructure.Repository;
+using GHM.HR.Domain.IRepository;
+using GHM.Infrastructure.Constants;
+using GHM.Infrastructure.IServices;
+using GHM.Infrastructure.Models;
+
+namespace GHM.HR.API.Infrastructure.Service
+{
+    public class HolidayService : IHolidayService
+    {
+        private readonly IHolidayRepository _holidayRepository;
+        private readonly IWorkScheduleRepository _workScheduleRepository;
+
+
+
+        private readonly IResourceService<GhmHRResource> _ghmHRResource;
+
+        public HolidayService(IHolidayRepository holidayRepository,
+                              IWorkScheduleRepository workScheduleRepository,
+                              IResourceService<GhmHRResource> ghmHRResource)
+        {
+            _holidayRepository = holidayRepository;
+            _workScheduleRepository = workScheduleRepository;
+            _ghmHRResource = ghmHRResource;
+        }
+
+        public Task<ActionResultResponse> DeleteAsync(string Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ActionResultResponse<HolidayViewModel>> GetDetailAsync(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string companyId, string createId, string createFullName, HolidayMeta holidayMeta)
+        {
+            var holidayId = Guid.NewGuid().ToString();
+
+            // kiểm tra tên của ca đã tồn tại hay chưa.
+            var existingHoliday = await _holidayRepository.checkNameExists(tenantId, companyId, holidayMeta.Name.Trim());
+            if (existingHoliday)
+                return new ActionResultResponse<string>(-5, _ghmHRResource.GetString(ErrorMessage.AlreadyExists, _ghmHRResource.GetString("Holiday"), holidayMeta.Name));
+
+            var holiday = new Holiday   
+            {
+                Id = Guid.Parse(holidayId),
+                TenantId = Guid.Parse(tenantId),
+                CompanyId = Guid.Parse(companyId),
+                FromDay = holidayMeta.FromDate,
+                ToDay = holidayMeta.ToDate,
+                Name = holidayMeta.Name.Trim(),
+                Description = holidayMeta.Description,
+                CreateTime = DateTime.Now,
+                CreateId = Guid.Parse(createId),
+                CreateFullName = createFullName,
+                IsDelete = false
+            };
+
+            var result = await _holidayRepository.InsertAsync(holiday);
+
+            if (result <= 0)
+                return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+
+            result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreated(tenantId, companyId, holiday.FromDay, holiday.ToDay, holidayId);
+
+            if(result < 0)
+                return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+
+            return new ActionResultResponse<string>(result, _ghmHRResource.GetString(SuccessMessage.AddSuccessful, _ghmHRResource.GetString("Holiday")), string.Empty, holidayId);
+        }
+
+        public Task<List<HolidayViewModel>> SelectAllByCompanyIdAsync(string tenantId, string companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ActionResultResponse<string>> UpdateAsync(string updateId, string updateFullName, HolidayMeta holidayMeta, string holidayId, string companyId, string tenantId)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

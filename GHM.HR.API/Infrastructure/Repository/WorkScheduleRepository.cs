@@ -106,5 +106,32 @@ namespace GHM.HR.API.Infrastructure.Repository
                 return -1;
             }
         }
+
+        public async Task<int> UpdateWorkSchedulewhenHolidayCreated(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId)
+        {
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@TenantId", tenantId);
+                    param.Add("@CompanyId", companyId);
+                    param.Add("@FromDate", FromDate);
+                    param.Add("@ToDate", ToDate);
+                    param.Add("@HolidayId", holidayId);
+                    rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdateWhenHolidayCreated]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdateWhenHolidayCreated] UpdateWorkSchedulewhenHolidayCreated WorkScheduleRepository Error.");
+                return -1;
+            }
+        }
     }
 }
