@@ -60,7 +60,7 @@ namespace GHM.HR.API.Infrastructure.Service
                 EndTime = info.EndTime
             };
 
-            return new ActionResultResponse<ShiftsViewModel>(1, _ghmHRResource.GetString(SuccessMessage.GetDataSuccessfully, _ghmHRResource.GetString("Shift")), string.Empty, result);
+            return new ActionResultResponse<ShiftsViewModel>(1, _ghmHRResource.GetString(SuccessMessage.IsSuccessful, _ghmHRResource.GetString("Shift")), string.Empty, result);
 
         }
 

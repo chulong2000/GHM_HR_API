@@ -23,6 +23,37 @@ namespace GHM.HR.API.Infrastructure.Repository
             _cache = cache;
         }
 
-        
+        public async Task<int> InsertAsync(WorkSchedule workSchedule)
+        {
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@Id", workSchedule.Id);
+                    param.Add("@WorkDay", workSchedule.WorkDay);
+                    param.Add("@ShiftId", workSchedule.ShiftId);
+                    param.Add("@UserId", workSchedule.UserId);
+                    param.Add("@CreateTime", workSchedule.CreateTime);
+                    param.Add("@CreateId", workSchedule.CreateId);
+                    param.Add("@CreateFullName", workSchedule.CreateFullName);
+                    param.Add("@CompanyId", workSchedule.CompanyId);
+                    param.Add("@TenantId", workSchedule.TenantId);
+                    param.Add("@Year", workSchedule.Year);
+                    
+                    rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_Insert]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_Insert] InsertAsync WorkSchedule Error.");
+                return -1;
+            }
+        }
     }
 }

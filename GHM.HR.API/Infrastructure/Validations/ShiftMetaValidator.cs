@@ -16,7 +16,7 @@ namespace GHM.HR.API.Infrastructure.Validations
 
             RuleFor(x => x.EndTime)
                 .GreaterThan(x => x.StartTime)
-                .WithMessage(ghmHRResource.GetString(ErrorMessage.InvalidEndTime, ghmHRResource.GetString("EndTime"), ghmHRResource.GetString("StartTime")));
+                .WithMessage(ghmHRResource.GetString(ErrorMessage.Invalid, ghmHRResource.GetString("EndTime"), ghmHRResource.GetString("StartTime")));
         }
     }
 }

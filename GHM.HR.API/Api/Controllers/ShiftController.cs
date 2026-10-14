@@ -29,7 +29,8 @@ namespace GHM.HR.API.Api.Controllers
         [Route("search/{companyId}"), AcceptVerbs("GET")]
         public async Task<IActionResult> SelectAllByCompanyId(string companyId, DataSourceLoadOptions loadOptions)
         {
-            var data = await _shiftService.SelectAllByCompanyIdAsync(CurrentUser.TenantId, companyId);
+            string tentantId = "dae13df6-6720-4bda-a61c-61e5e948017e";
+            var data = await _shiftService.SelectAllByCompanyIdAsync(tentantId, companyId);
             return Ok(HandlerSearchResult.SearchResult(data, loadOptions));
         }
 
