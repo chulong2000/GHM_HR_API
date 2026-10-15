@@ -11,9 +11,9 @@ namespace GHM.HR.API.Infrastructure.Validations
         public HolidayMetaValidator(IResourceService<GhmHRResource> ghmHRResource)
         {
             
-            RuleFor(x => x.ToDate)
-                .GreaterThan(x => x.FromDate)
-                .WithMessage(ghmHRResource.GetString(ErrorMessage.Invalid, ghmHRResource.GetString("ToDate"), ghmHRResource.GetString("FromDate")));
+            RuleFor(x => x.ToDay)
+                .GreaterThan(x => x.FromDay)
+                .WithMessage(ghmHRResource.GetString(ErrorMessage.Invalid, ghmHRResource.GetString("ToDay"), ghmHRResource.GetString("FromDay")));
         }
     }
 }

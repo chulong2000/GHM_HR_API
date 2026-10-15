@@ -4,6 +4,7 @@ using GHM.HR.API.Domain.Models;
 using GHM.HR.API.Domain.Resources;
 using GHM.HR.API.Infrastructure.Repository;
 using GHM.HR.Domain.IRepository;
+using GHM.HR.Infrastructure.Repository;
 using GHM.Infrastructure.Constants;
 using GHM.Infrastructure.IServices;
 using GHM.Infrastructure.Models;
@@ -31,9 +32,22 @@ namespace GHM.HR.API.Infrastructure.Service
             _ghmHRResource = ghmHRResource;
         }
 
-        public Task<ActionResultResponse> DeleteAsync(string Id)
+        public async  Task<ActionResultResponse> DeleteAsync(string Id, string deleteUserId, string deleteFullName)
         {
-            throw new NotImplementedException();
+            var info = await _holidayRepository.GetInfoAsync(Id);
+            if (info == null)
+                return new ActionResultResponse(-2, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Holiday")));
+           
+            info.DeleteUserId = Guid.Parse(deleteUserId);
+            info.DeleteFullName = deleteFullName;
+            info.DeleteTime = DateTime.Now;
+
+            var result = await _holidayRepository.DeleteAsync(info);
+
+            if (result <= 0)
+                return new ActionResultResponse(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+
+            return new ActionResultResponse(result, _ghmHRResource.GetString(SuccessMessage.DeleteSuccessful, _ghmHRResource.GetString("Holiday")));
         }
 
         public Task<ActionResultResponse<HolidayViewModel>> GetDetailAsync(string id)
@@ -55,8 +69,8 @@ namespace GHM.HR.API.Infrastructure.Service
                 Id = Guid.Parse(holidayId),
                 TenantId = Guid.Parse(tenantId),
                 CompanyId = Guid.Parse(companyId),
-                FromDay = holidayMeta.FromDate,
-                ToDay = holidayMeta.ToDate,
+                FromDay = holidayMeta.FromDay,
+                ToDay = holidayMeta.ToDay,
                 Name = holidayMeta.Name.Trim(),
                 Description = holidayMeta.Description,
                 CreateTime = DateTime.Now,
@@ -100,8 +114,8 @@ namespace GHM.HR.API.Infrastructure.Service
                 Id = Guid.Parse(holidayId),
                 TenantId = Guid.Parse(tenantId),
                 CompanyId = Guid.Parse(companyId),
-                FromDay = holidayMeta.FromDate,
-                ToDay = holidayMeta.ToDate,
+                FromDay = holidayMeta.FromDay,
+                ToDay = holidayMeta.ToDay,
                 Name = holidayMeta.Name.Trim(),
                 Description = holidayMeta.Description,
                 LastUpdateTime = DateTime.Now,
@@ -114,7 +128,15 @@ namespace GHM.HR.API.Infrastructure.Service
             if(result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
+            var dateRangeChanged = (existingHolidayInfo.FromDay.Date, existingHolidayInfo.ToDay.Date)
+                                   != (holidayMeta.FromDay.Date, holidayMeta.ToDay.Date);
 
+            if (dateRangeChanged)
+            {
+                result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayUpdatedAsync(tenantId, companyId, holidayMeta.FromDay, holidayMeta.ToDay, holidayId);
+                if(result < 0)
+                    return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+            }
 
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString(SuccessMessage.UpdateSuccessful, _ghmHRResource.GetString("Holiday")), string.Empty, holidayId);
         }

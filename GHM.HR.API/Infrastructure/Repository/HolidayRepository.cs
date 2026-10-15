@@ -35,7 +35,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@Name", name);
 
                 var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, commandType: CommandType.StoredProcedure);
-                return result;
+                return result;  
             }
             catch (Exception ex)
             {
@@ -56,6 +56,9 @@ namespace GHM.HR.API.Infrastructure.Repository
 
                     DynamicParameters param = new();
                     param.Add("@Id", holiday.Id);
+                    param.Add("@DeleteUserId", holiday.DeleteUserId);
+                    param.Add("@DeleteFullName", holiday.DeleteFullName);
+                    param.Add("@DeleteTime", holiday.DeleteTime);
                     rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_DeleteByID]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
@@ -156,6 +159,8 @@ namespace GHM.HR.API.Infrastructure.Repository
 
                     DynamicParameters param = new();
                     param.Add("@Id", holiday.Id);
+                    param.Add("@TenantId", holiday.TenantId);
+                    param.Add("@CompanyId", holiday.CompanyId);
                     param.Add("@FromDay", holiday.FromDay);
                     param.Add("@ToDay", holiday.ToDay);
                     param.Add("@Name", holiday.Name);
@@ -163,6 +168,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                     param.Add("@LastUpdateTime", holiday.LastUpdateTime);
                     param.Add("@LastUpdateId", holiday.LastUpdateId);
                     param.Add("@LastUpdateFullName", holiday.LastUpdateFullName);
+                    param.Add("@IsDelete", false);
 
                     rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_Update]", param, commandType: CommandType.StoredProcedure);
                 }

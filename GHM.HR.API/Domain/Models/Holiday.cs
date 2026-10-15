@@ -15,6 +15,9 @@
         public Guid? LastUpdateId { get; set; } 
         public string? LastUpdateFullName { get; set; }
 
+        public Guid? DeleteUserId { get; set; }
+        public string? DeleteFullName { get; set; }
+        public DateTime? DeleteTime { get; set; }
         public bool IsDelete { get; set; }
     }
 }

@@ -120,8 +120,8 @@ namespace GHM.HR.API.Infrastructure.Repository
                     DynamicParameters param = new();
                     param.Add("@TenantId", tenantId);
                     param.Add("@CompanyId", companyId);
-                    param.Add("@FromDate", FromDate);
-                    param.Add("@ToDate", ToDate);
+                    param.Add("@FromDay", FromDate);
+                    param.Add("@ToDay", ToDate);
                     param.Add("@HolidayId", holidayId);
                     rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdateWhenHolidayCreated]", param, commandType: CommandType.StoredProcedure);
                 }
@@ -130,6 +130,33 @@ namespace GHM.HR.API.Infrastructure.Repository
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdateWhenHolidayCreated] UpdateWorkSchedulewhenHolidayCreated WorkScheduleRepository Error.");
+                return -1;
+            }
+        }
+
+        public async Task<int> UpdateWorkSchedulewhenHolidayUpdatedAsync(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId)
+        {
+            try
+            {
+                int rowAffected = 0;
+                using (SqlConnection con = new(_connectionString))
+                {
+                    if (con.State == ConnectionState.Closed)
+                        await con.OpenAsync();
+
+                    DynamicParameters param = new();
+                    param.Add("@TenantId", tenantId);
+                    param.Add("@CompanyId", companyId);
+                    param.Add("@FromDay", FromDate);
+                    param.Add("@ToDay", ToDate);
+                    param.Add("@HolidayId", holidayId);
+                    rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdatewhenHolidayUpdated]", param, commandType: CommandType.StoredProcedure);
+                }
+                return rowAffected;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdatewhenHolidayUpdated] UpdateWorkSchedulewhenHolidayUpdatedAsync WorkScheduleRepository Error.");
                 return -1;
             }
         }

@@ -14,6 +14,7 @@ namespace GHM.HR.API.Domain.IRepository
         Task<List<WorkScheduleViewModel>> GetAllScheduleInMonthOfUser(string tenantId, string companyId, string userId, int year, int month);
 
         Task<int> UpdateWorkSchedulewhenHolidayCreated(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId);
+        Task<int> UpdateWorkSchedulewhenHolidayUpdatedAsync(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId);
 
     }
 }

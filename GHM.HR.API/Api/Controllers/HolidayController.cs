@@ -1,5 +1,6 @@
 ﻿using GHM.HR.API.Domain.IServices;
 using GHM.HR.API.Domain.ModelMetas;
+using GHM.HR.API.Infrastructure.Service;
 using GHM.Infrastructure;
 using GHM.Infrastructure.CustomAttributes;
 using GHM.Infrastructure.SearchRemote;
@@ -38,6 +39,26 @@ namespace GHM.HR.API.Api.Controllers
             if (result.Code <= 0)
             {
                 _logger.LogError("Insert Holiday controller code");
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+
+        [SwaggerOperation(Summary = "Update information Holiday.", Description = "Requires login verification!", OperationId = "UpdateHoliday", Tags = new[] { "Holiday" })]
+        [Route("{id}"), AcceptVerbs("PUT"), ValidateModel]
+        public async Task<IActionResult> UpdateAsync(
+             string id,
+             string tenantId,
+             string companyId,
+            [FromBody] HolidayMeta holidayMeta)
+        {
+            string updateId = "736c3e00-2df2-4c2a-94a9-89cb0f4b55ba";
+            string updateName = "Admin";
+            var result = await _holidayService.UpdateAsync(updateId, updateName, holidayMeta, id, companyId, tenantId);
+            if (result.Code <= 0)
+            {
+                _logger.LogError("Update Holiday controller code");
                 return BadRequest(result);
             }
             return Ok(result);
