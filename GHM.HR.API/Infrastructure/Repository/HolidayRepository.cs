@@ -20,7 +20,7 @@ namespace GHM.HR.API.Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<bool> checkNameExists(string tenantId, string companyId, string name)
+        public async Task<bool> checkNameExists(string tenantId, string companyId, string name, string holidayId)
         {
             try
             {
@@ -31,6 +31,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@CompanyId", companyId);
+                param.Add("@HolidayId", holidayId);
                 param.Add("@Name", name);
 
                 var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, commandType: CommandType.StoredProcedure);

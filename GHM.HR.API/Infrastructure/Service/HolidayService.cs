@@ -7,6 +7,9 @@ using GHM.HR.Domain.IRepository;
 using GHM.Infrastructure.Constants;
 using GHM.Infrastructure.IServices;
 using GHM.Infrastructure.Models;
+using IdentityModel.Client;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Net.WebSockets;
 
 namespace GHM.HR.API.Infrastructure.Service
 {
@@ -43,7 +46,7 @@ namespace GHM.HR.API.Infrastructure.Service
             var holidayId = Guid.NewGuid().ToString();
 
             // kiểm tra tên của ca đã tồn tại hay chưa.
-            var existingHoliday = await _holidayRepository.checkNameExists(tenantId, companyId, holidayMeta.Name.Trim());
+            var existingHoliday = await _holidayRepository.checkNameExists(tenantId, companyId, holidayMeta.Name.Trim(), holidayId);
             if (existingHoliday)
                 return new ActionResultResponse<string>(-5, _ghmHRResource.GetString(ErrorMessage.AlreadyExists, _ghmHRResource.GetString("Holiday"), holidayMeta.Name));
 
@@ -75,14 +78,45 @@ namespace GHM.HR.API.Infrastructure.Service
             return new ActionResultResponse<string>(result, _ghmHRResource.GetString(SuccessMessage.AddSuccessful, _ghmHRResource.GetString("Holiday")), string.Empty, holidayId);
         }
 
-        public Task<List<HolidayViewModel>> SelectAllByCompanyIdAsync(string tenantId, string companyId)
+        public async Task<List<HolidayViewModel>> SelectAllByCompanyIdAsync(string tenantId, string companyId)
         {
-            throw new NotImplementedException();
+            return await _holidayRepository.SelectAllAsync(tenantId, companyId);
         }
 
-        public Task<ActionResultResponse<string>> UpdateAsync(string updateId, string updateFullName, HolidayMeta holidayMeta, string holidayId, string companyId, string tenantId)
+        public async Task<ActionResultResponse<string>> UpdateAsync(string updateId, string updateFullName, HolidayMeta holidayMeta, string holidayId, string companyId, string tenantId)
         {
-            throw new NotImplementedException();
+            var existingHolidayInfo = await _holidayRepository.GetInfoAsync(holidayId);
+            if (existingHolidayInfo == null)
+            {
+                return new ActionResultResponse<string>(-5, _ghmHRResource.GetString(ErrorMessage.NotExists, _ghmHRResource.GetString("Holiday"), holidayMeta.Name));
+            }
+
+            var existingHolidayName = await _holidayRepository.checkNameExists(tenantId, companyId, holidayMeta.Name.Trim(), holidayId);
+            if (existingHolidayName)
+                return new ActionResultResponse<string>(-5, _ghmHRResource.GetString(ErrorMessage.AlreadyExists, _ghmHRResource.GetString("Holiday"), holidayMeta.Name));
+
+            var holiday = new Holiday
+            {
+                Id = Guid.Parse(holidayId),
+                TenantId = Guid.Parse(tenantId),
+                CompanyId = Guid.Parse(companyId),
+                FromDay = holidayMeta.FromDate,
+                ToDay = holidayMeta.ToDate,
+                Name = holidayMeta.Name.Trim(),
+                Description = holidayMeta.Description,
+                LastUpdateTime = DateTime.Now,
+                LastUpdateId = Guid.Parse(updateId),
+                LastUpdateFullName = updateFullName,
+                IsDelete = false
+            };
+
+            var result = await _holidayRepository.UpdateAsync(holiday);
+            if(result <= 0)
+                return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+
+
+
+            return new ActionResultResponse<string>(result, _ghmHRResource.GetString(SuccessMessage.UpdateSuccessful, _ghmHRResource.GetString("Holiday")), string.Empty, holidayId);
         }
     }
 }
