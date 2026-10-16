@@ -107,7 +107,7 @@ namespace GHM.HR.API.Infrastructure.Repository
             }
         }
 
-        public async Task<int> UpdateWorkSchedulewhenHolidayCreated(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId)
+        public async Task<int> UpdateWorkSchedulewhenHolidayCreateOrDelete(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId)
         {
             try
             {
@@ -129,7 +129,7 @@ namespace GHM.HR.API.Infrastructure.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdateWhenHolidayCreated] UpdateWorkSchedulewhenHolidayCreated WorkScheduleRepository Error.");
+                _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdateWhenHolidayCreated] UpdateWorkSchedulewhenHolidayCreateOrDelete WorkScheduleRepository Error.");
                 return -1;
             }
         }

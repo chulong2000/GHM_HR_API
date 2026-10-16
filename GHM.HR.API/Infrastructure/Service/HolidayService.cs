@@ -47,14 +47,14 @@ namespace GHM.HR.API.Infrastructure.Service
             if (result <= 0)
                 return new ActionResultResponse(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
+            result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreateOrDelete(info.TenantId.ToString(), info.CompanyId.ToString(), info.FromDay, info.ToDay, null);
+            if (result < 0)
+                return new ActionResultResponse(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
+
             return new ActionResultResponse(result, _ghmHRResource.GetString(SuccessMessage.DeleteSuccessful, _ghmHRResource.GetString("Holiday")));
         }
 
-        public Task<ActionResultResponse<HolidayViewModel>> GetDetailAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public async Task<ActionResultResponse<string>> InsertAsync(string tenantId, string companyId, string createId, string createFullName, HolidayMeta holidayMeta)
         {
             var holidayId = Guid.NewGuid().ToString();
@@ -84,7 +84,7 @@ namespace GHM.HR.API.Infrastructure.Service
             if (result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 
-            result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreated(tenantId, companyId, holiday.FromDay, holiday.ToDay, holidayId);
+            result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreateOrDelete(tenantId, companyId, holiday.FromDay, holiday.ToDay, holidayId);
 
             if(result < 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
