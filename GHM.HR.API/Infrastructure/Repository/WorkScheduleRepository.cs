@@ -136,8 +136,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<int> UpdateWorkSchedulewhenHolidayUpdatedAsync(string tenantId, string companyId, DateTime FromDate, DateTime ToDate, string holidayId)
         {
-            try
-            {
+
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -153,12 +152,6 @@ namespace GHM.HR.API.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdatewhenHolidayUpdated]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spWorkSchedule_UpdatewhenHolidayUpdated] UpdateWorkSchedulewhenHolidayUpdatedAsync WorkScheduleRepository Error.");
-                return -1;
-            }
         }
     }
 }

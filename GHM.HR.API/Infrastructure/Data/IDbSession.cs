@@ -24,7 +24,7 @@ namespace GHM.HR.API.Infrastructure.Data
             _factory = factory;
         }
 
-        public async Task<SqlConnection> GetConnectionAsync(string name = DbConnectionNames.Default)
+        public async Task<SqlConnection> GetConnectionAsync(string name = DbConnectionNames.Hr)
         {
             if (_connection == null)
             {
