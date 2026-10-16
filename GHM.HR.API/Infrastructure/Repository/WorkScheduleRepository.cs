@@ -120,8 +120,8 @@ namespace GHM.HR.API.Infrastructure.Repository
                     DynamicParameters param = new();
                     param.Add("@TenantId", tenantId);
                     param.Add("@CompanyId", companyId);
-                    param.Add("@FromDay", FromDate);
-                    param.Add("@ToDay", ToDate);
+                    param.Add("@FromDay", FromDate.Date);
+                    param.Add("@ToDay", ToDate.Date);
                     param.Add("@HolidayId", holidayId);
                     rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdateWhenHolidayCreated]", param, commandType: CommandType.StoredProcedure);
                 }
@@ -147,8 +147,8 @@ namespace GHM.HR.API.Infrastructure.Repository
                     DynamicParameters param = new();
                     param.Add("@TenantId", tenantId);
                     param.Add("@CompanyId", companyId);
-                    param.Add("@FromDay", FromDate);
-                    param.Add("@ToDay", ToDate);
+                    param.Add("@FromDay", FromDate.Date);
+                    param.Add("@ToDay", ToDate.Date);
                     param.Add("@HolidayId", holidayId);
                     rowAffected = await con.ExecuteAsync("[dbo].[spWorkSchedule_UpdatewhenHolidayUpdated]", param, commandType: CommandType.StoredProcedure);
                 }
