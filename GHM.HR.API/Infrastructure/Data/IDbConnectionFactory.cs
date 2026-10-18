@@ -22,6 +22,8 @@ namespace GHM.HR.API.Infrastructure.Data
 
         public async Task<SqlConnection> CreateAsync(string name)
         {
+            Console.WriteLine("Check connection string for: " + _connectionStrings);
+
             if (!_connectionStrings.TryGetValue(name, out var connectionString))
                 throw new InvalidOperationException($"No connection string configured for '{name}'.");
 

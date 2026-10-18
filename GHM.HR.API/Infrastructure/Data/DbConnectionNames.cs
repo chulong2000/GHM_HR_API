@@ -7,8 +7,9 @@
 
         /// <summary>Shared HR database (read-only cross-service lookups: users, departments).</summary>
         public const string Hr = "Hr";
+        public const string Hr_New = "DemoConnection";
 
         /// <summary>Default connection used by repositories in this feature.</summary>
-        public const string Default = Qlpk;
+        public const string Default = Hr_New;
     }
 }

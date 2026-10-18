@@ -24,7 +24,7 @@ namespace GHM.HR.API.Infrastructure.Data
             _factory = factory;
         }
 
-        public async Task<SqlConnection> GetConnectionAsync(string name = DbConnectionNames.Default)
+        public async Task<SqlConnection> GetConnectionAsync(string name = DbConnectionNames.Hr_New)
         {
             if (_connection == null)
             {
@@ -49,6 +49,8 @@ namespace GHM.HR.API.Infrastructure.Data
 
             var connection = await GetConnectionAsync();
             Transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+
+            Console.WriteLine("Check exception: " + Transaction);
         }
 
         public async Task CommitAsync()
@@ -65,6 +67,8 @@ namespace GHM.HR.API.Infrastructure.Data
         {
             if (Transaction == null)
                 return;
+
+            Console.WriteLine("Check transaction: " + Transaction);
 
             await Transaction.RollbackAsync();
             await Transaction.DisposeAsync();

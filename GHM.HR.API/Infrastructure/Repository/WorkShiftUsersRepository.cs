@@ -20,8 +20,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<ShiftOfUser>> CheckShiftOfUserAsync(string tenantId, string companyId, string userId, DateTime startDate, DateTime endDate)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -34,19 +32,11 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@EndDate", endDate);
                 var results = await con.QueryAsync<ShiftOfUser>("[dbo].[spWorkShiftUsers_CheckShiftOfUser]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spWorkShiftUsers_CheckShiftOfUser] CheckShiftOfUserAsync WorkShiftUsersRepository Error.");
-                return [];
-            }
         }
 
         public async Task<WorkShiftRangeResponse> GetWorkShiftDetails(
             string tenantId, string companyId, string userId, DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            try
-            {
                 var response = new WorkShiftRangeResponse();
 
                 using (var connection = new SqlConnection(_connectionString))
@@ -78,13 +68,6 @@ namespace GHM.HR.API.Infrastructure.Repository
                 }
 
                 return response;
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spWorkShiftUsers_GetByDateAndTimeRange] GetWorkShiftDetails WorkShiftUsersRepository Error.");
-                return new WorkShiftRangeResponse();
-            }
         }
     }
 }

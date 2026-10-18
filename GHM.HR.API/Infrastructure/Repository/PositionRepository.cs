@@ -26,8 +26,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<PositionSearchViewModel>> SelectAllAsync(string tenantId, string companyId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -37,18 +35,10 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@CompanyId", companyId);
                 var results = await con.QueryAsync<PositionSearchViewModel>("[dbo].[spPosition_SelectAll]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_SelectAll] SelectAllAsync PositionRepository Error.");
-                return new List<PositionSearchViewModel>();
-            }
         }
 
         public async Task<List<PositionSearchViewModel>> SelectAllPositionActiveAsync(string tenantId, string companyId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -58,18 +48,10 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@CompanyId", companyId);
                 var results = await con.QueryAsync<PositionSearchViewModel>("[dbo].[spPosition_SelectAll_Active]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_SelectAll_Active] SelectAllActiveAsync PositionRepository Error.");
-                return new List<PositionSearchViewModel>();
-            }
         }
 
         public async Task<int> InsertAsync(Position position)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -105,18 +87,10 @@ namespace GHM.HR.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spPosition_Insert]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_Insert] InsertAsync PositionRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<int> UpdateAsync(Position position)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -155,18 +129,10 @@ namespace GHM.HR.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spPosition_Update]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_Update] UpdateAsync PositionRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<Position> GetInfoAsync(string id)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -174,18 +140,10 @@ namespace GHM.HR.Infrastructure.Repository
                 DynamicParameters param = new();
                 param.Add("@Id", id);
                 return await con.QuerySingleOrDefaultAsync<Position>("[dbo].[spPosition_SelectByID]", param, commandType: CommandType.StoredProcedure);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_SelectByID] GetInfoAsync PositionRepository Error.");
-                return null;
-            }
         }
 
         public async Task<int> DeleteAsync(Position position)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -199,18 +157,10 @@ namespace GHM.HR.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spPosition_DeleteByID]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_DeleteByID] DeleteAsync PositionRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<bool> CheckExistCodeAsync(string tenantId, string companyId, string code, string id)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -220,18 +170,10 @@ namespace GHM.HR.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, Code = code, Id = id,CompanyId = companyId });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistsCodeAsync PositionRepository Error.");
-                return false;
-            }
         }
 
         public async Task<int> ForceDeleteAsync(string companyId, string id)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -244,18 +186,10 @@ namespace GHM.HR.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spPosition_ForceDeleteByID]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spPosition_ForceDeleteByID] ForceDeleteAsync PositionRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<bool> CheckExistNameAsync(string tenantId, string companyId, string name)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -265,18 +199,10 @@ namespace GHM.HR.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, Name = name, CompanyId = companyId });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistsNameAsync PositionRepository Error.");
-                return false;
-            }
         }
 
         public async Task<bool> CheckExistByNameAsync(string tenantId, string companyId, string id, string name)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -286,18 +212,10 @@ namespace GHM.HR.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, Name = name, CompanyId = companyId, Id = id });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistByNameAsync PositionRepository Error.");
-                return false;
-            }
         }
 
         public async Task<int> UpdateByPositionNameAsync(string tenantId,string companyId,string positionId, string positionName)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -313,18 +231,10 @@ namespace GHM.HR.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[Update_By_PositionName]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[Update_By_PositionName] UpdateByPositionNameAsync PositionRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<bool> CheckExistsAsync(string companyId, string id)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -334,12 +244,6 @@ namespace GHM.HR.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { Id = id });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistsAsync PositionRepository Error.");
-                return false;
-            }
         }
 
         public async Task<int> UpdateIsActive(string companyId, string id, bool isActive)

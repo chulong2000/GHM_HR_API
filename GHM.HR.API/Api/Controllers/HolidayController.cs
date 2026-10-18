@@ -26,6 +26,14 @@ namespace GHM.HR.API.Api.Controllers
         }
 
 
+        [SwaggerOperation(Summary = "Get all information companys.", Description = "Requires login verification!", OperationId = "GetAllCompanys", Tags = new[] { "Company" })]
+        [Route("get-all/{companyId}/{tenantId}"), AcceptVerbs("GET")]
+        public async Task<IActionResult> SelectAllAsync(string companyId, string tenantId)
+        {
+            var result = await _holidayService.SelectAllByCompanyIdAsync(tenantId, companyId);
+            return Ok(result);
+        }
+
         [SwaggerOperation(Summary = "Insert information department.", Description = "Requires login verification!", OperationId = "InsertDepartment", Tags = new[] { "Department" })]
         [AcceptVerbs("POST"), ValidateModel]
         public async Task<IActionResult> InsertAsync(
@@ -59,6 +67,21 @@ namespace GHM.HR.API.Api.Controllers
             if (result.Code <= 0)
             {
                 _logger.LogError("Update Holiday controller code");
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Delete information Holiday.", Description = "Requires login verification!", OperationId = "DeleteHoliday", Tags = new[] { "Holiday" })]
+        [Route("{id}"), AcceptVerbs("DELETE")]
+        public async Task<IActionResult> DeleteAsync(string id)
+        {
+            string deleteUserId = "da87490a-5e89-4b79-bc47-54a51d8d5b7e";
+            string deleteFullName = "Nguyen Van A";
+            var result = await _holidayService.DeleteAsync(id, deleteUserId, deleteFullName);
+            if (result.Code <= 0)
+            {
+                _logger.LogError("Delete Holiday controller code");
                 return BadRequest(result);
             }
             return Ok(result);

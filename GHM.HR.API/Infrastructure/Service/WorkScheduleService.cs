@@ -52,6 +52,7 @@ namespace GHM.HR.API.Infrastructure.Service
                    Year = workScheduleMeta.Year
                });
 
+
             if (result <= 0)
                 return new ActionResultResponse<string>(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
 

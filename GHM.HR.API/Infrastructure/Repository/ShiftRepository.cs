@@ -27,8 +27,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<bool> checkNameExists(string tenantId, string companyId, string name, string shiftId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -39,18 +37,10 @@ namespace GHM.HR.API.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { CompanyId = companyId, TenantId = tenantId, Name = name, ShiftId = shiftId });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistsNameAsync ShiftRepository Error.");
-                return false;
-            }
         }
 
         public async Task<int> DeleteAsync(Shift shift)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -62,18 +52,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spShift_DeleteByID]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spShift_DeleteByID] DeleteAsync ShiftRepository  Error.");
-                return -1;
-            }
         }
 
         public async Task<Shift?> GetInfoAsync(string id)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -81,18 +63,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                 DynamicParameters param = new();
                 param.Add("@Id", id);
                 return await con.QuerySingleOrDefaultAsync<Shift>("[dbo].[spShift_SelectByID]", param, commandType: CommandType.StoredProcedure);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spShift_SelectByID] GetInfoAsyncShiftRepository Error.");
-                return null;
-            }
         }
 
         public async Task<int> InsertAsync(Shift shift)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -116,18 +90,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spShift_Insert]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spShift_Insert] InsertAsync ShiftRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<List<ShiftsViewModel>> SelectAllAsync(string tenantId, string companyId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -137,18 +103,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@CompanyId", companyId);
                 var results = await con.QueryAsync<ShiftsViewModel>("[dbo].[spShift_SelectAll]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spShift_SelectAll] SelectAllAsync ShiftRepository Error.");
-                return [];
-            }
         }
 
         public async Task<int> UpdateAsync(Shift shift)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -166,12 +124,6 @@ namespace GHM.HR.API.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spShift_Update]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spShift_Update] UpdateAsync ShiftRepository Error.");
-                return -1;
-            }
         }
     }
 }

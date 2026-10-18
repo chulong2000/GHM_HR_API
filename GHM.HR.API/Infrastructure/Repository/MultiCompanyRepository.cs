@@ -25,8 +25,6 @@ namespace GHM.HR.API.Infrastructure.Repository
         }
         public async Task<bool> CheckExistDoctorCodeAsync(string tenantId, string companyId, string doctorCode)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -36,12 +34,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
                 var result = await con.ExecuteScalarAsync<bool>(sql, new { TenantId = tenantId, CompanyId = companyId, DoctorCode = doctorCode });
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckExistDoctorCodeAsync MultiCompanyRepository Error.");
-                return false;
-            }
         }
 
         public async Task<List<string>> InsertBulkAsync(List<MultiCompany> multiCompanies)
@@ -52,8 +44,6 @@ namespace GHM.HR.API.Infrastructure.Repository
             if (multiCompanies == null || multiCompanies.Count == 0)
                 return new List<string>();
 
-            try
-            {
                 var insertedIds = new List<string>();
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
@@ -76,12 +66,6 @@ namespace GHM.HR.API.Infrastructure.Repository
                 }
 
                 return insertedIds;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultiCompany_InsertBulk] InsertBulkAsync MultiCompanyRepository Error.");
-                return new List<string>();
-            }
         }
 
        
@@ -127,8 +111,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable)
         {
-            try
-            {
                 using (SqlConnection con = new(_connectionString))
                 {
                     if (con.State == ConnectionState.Closed)
@@ -142,17 +124,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                     param.Add("@List", dataTable.AsTableValuedParameter("[dbo].[MultipleCompanyType]"));
                     await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertByTableType]", param, commandType: CommandType.StoredProcedure);
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultipleCompanys_InsertManyData] InsertAsync DepartmentRepository Error.");
-            }
         }
 
         public async Task<List<MultipleCompanySearchViewModel>> GetMultiCompaniesAsync(string tenantId, string companyId, string userId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -163,18 +138,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@UserId", userId);
                 var results = await con.QueryAsync<MultipleCompanySearchViewModel>("[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]  spMultipleCompanys_SearchMultiCompanyForUser Error.");
-                return new List<MultipleCompanySearchViewModel>();
-            }
         }
 
         public async Task<int> ForceDeleteByUserIdAsync(string tenantId, string userId)
         {
-            try
-            {
                 int rowAffected = 0;
                 using (SqlConnection con = new(_connectionString))
                 {
@@ -187,18 +154,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                     rowAffected = await con.ExecuteAsync("[dbo].[spMultiCompany_ForceDeleteByUserId]", param, commandType: CommandType.StoredProcedure);
                 }
                 return rowAffected;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultiCompany_ForceDeleteByUserId] ForceDeleteByUserIdAsync MultiCompanyRepository Error.");
-                return -1;
-            }
         }
 
         public async Task<List<MultiCompany>> GetInfoAsync(string tenantId, string userId)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -208,19 +167,10 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@TenantId", tenantId);
                 var results = await con.QueryAsync<MultiCompany>("[dbo].[spMultiCompany_GetAllCompanyOfUser]", param, commandType: CommandType.StoredProcedure);
                 return results.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultiCompany_GetAllCompanyOfUser] GetInfoAsyncMultiCompanyRepository Error.");
-                Console.WriteLine(ex.ToString());
-                return new List<MultiCompany>();
-            }
         }
 
         public async Task<CheckDoctorCodeResult> CheckDoctorCode(string tenantId, string companyId, DataTable dataTable)
         {
-            try
-            {
                 using SqlConnection con = new(_connectionString);
                 if (con.State == ConnectionState.Closed)
                     await con.OpenAsync();
@@ -237,12 +187,6 @@ namespace GHM.HR.API.Infrastructure.Repository
                 var count = param.Get<int>("@DuplicateCount");
 
                 return new CheckDoctorCodeResult(count, results.ToList());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[dbo].[spMultipleCompanys_CheckDoctorCode] GetInfoAsyncMultiCompanyRepository Error.");
-                return null;
-            }
         }
     }
 }

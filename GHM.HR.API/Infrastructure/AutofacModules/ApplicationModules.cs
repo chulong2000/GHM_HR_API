@@ -56,7 +56,7 @@ namespace GHM.HR.API.Infrastructure.AutofacModules
 
             var appConnectionStrings = new Dictionary<string, string?>
             {
-                { DbConnectionNames.Hr, ConnectionString }
+                { DbConnectionNames.Hr_New, ConnectionString }
             };
             builder.RegisterInstance(new SqlConnectionFactory(appConnectionStrings))
                 .As<IDbConnectionFactory>()
