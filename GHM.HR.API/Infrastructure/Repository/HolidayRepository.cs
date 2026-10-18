@@ -11,7 +11,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 {
     public class HolidayRepository : IHolidayRepository
     {
-
         private readonly string _connectionString;
         private readonly ILogger<HolidayRepository> _logger;
         private readonly IDbSession _dbSession;
@@ -25,36 +24,26 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<bool> checkNameExists(string tenantId, string companyId, string name, string holidayId)
         {
-                using SqlConnection con = new(_connectionString);
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
+            DynamicParameters param = new();
+            param.Add("@TenantId", tenantId);
+            param.Add("@CompanyId", companyId);
+            param.Add("@HolidayId", holidayId);
+            param.Add("@Name", name);
 
-                DynamicParameters param = new();
-                param.Add("@TenantId", tenantId);
-                param.Add("@CompanyId", companyId);
-                param.Add("@HolidayId", holidayId);
-                param.Add("@Name", name);
-
-                var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, commandType: CommandType.StoredProcedure);
-                return result;
+            var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, commandType: CommandType.StoredProcedure);
+            return result;
         }
 
         public async Task<int> DeleteAsync(Holiday holiday)
         {
-                int rowAffected = 0;
-                using (SqlConnection con = new(_connectionString))
-                {
-                    if (con.State == ConnectionState.Closed)
-                        await con.OpenAsync();
-
-                    DynamicParameters param = new();
-                    param.Add("@Id", holiday.Id);
-                    param.Add("@DeleteUserId", holiday.DeleteUserId);
-                    param.Add("@DeleteFullName", holiday.DeleteFullName);
-                    param.Add("@DeleteTime", holiday.DeleteTime);
-                    rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_DeleteByID]", param, commandType: CommandType.StoredProcedure);
-                }
-                return rowAffected;
+            int rowAffected = 0;
+                DynamicParameters param = new();
+                param.Add("@Id", holiday.Id);
+                param.Add("@DeleteUserId", holiday.DeleteUserId);
+                param.Add("@DeleteFullName", holiday.DeleteFullName);
+                param.Add("@DeleteTime", holiday.DeleteTime);
+                rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_DeleteByID]", param, commandType: CommandType.StoredProcedure);
+            return rowAffected;
         }
 
         public async Task<Holiday> GetInfoAsync(string id)
@@ -93,20 +82,15 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HolidayViewModel>> SelectAllAsync(string tenantId, string companyId)
         {
-                using SqlConnection con = new(_connectionString);
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
-                DynamicParameters param = new();
-                param.Add("@TenantId", tenantId);
-                param.Add("@CompanyId", companyId);
-                var results = await con.QueryAsync<HolidayViewModel>("[dbo].[spHoliday_SelectAll]", param, commandType: CommandType.StoredProcedure);
-                return results.ToList();
+            DynamicParameters param = new();
+            param.Add("@TenantId", tenantId);
+            param.Add("@CompanyId", companyId);
+            var results = await con.QueryAsync<HolidayViewModel>("[dbo].[spHoliday_SelectAll]", param, commandType: CommandType.StoredProcedure);
+            return results.ToList();
         }
 
         public async Task<int> UpdateAsync(Holiday holiday)
         {
-
             int rowAffected = 0;
 
             var con = await _dbSession.GetConnectionAsync();

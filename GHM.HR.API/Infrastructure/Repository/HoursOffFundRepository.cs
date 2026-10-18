@@ -20,10 +20,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<UserHoursOffViewModel> GetHoursOffAsync(string tenantId, string userId, DateTime startDate)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@UserId", userId);
@@ -34,9 +30,6 @@ namespace GHM.HR.API.Infrastructure.Repository
         public async Task<int> ExtendAsync(string tenantId, string companyId, DataTable table, DateTime newExpiryDate,
             string creatorId, string creatorFullName, string creatorAvatar)
         {
-            using SqlConnection con = new(_connectionString);
-            await con.OpenAsync();
-
             var param = new DynamicParameters();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -54,11 +47,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HoursOffFundDetailItem>> SelectDetailHoursOffAsync(string tenantId, string companyId, string userId, int year, int month, int filterType)
         {
-
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -73,10 +61,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HoursOffViewModel>> GetAllHoursOffAsync(string tenantId, string companyId, int year, int month, string keyword, string departmentIds)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -91,10 +75,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HoursOffFundSummaryItem>> GetSummaryAsync(string tenantId, string companyId, int year, int month, string keyword, string departmentIds)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -110,10 +90,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HoursOffFundExpiringSoon>> GetExpiringSoonAsync(string tenantId, string companyId, string userId, DateTime startDate)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -126,10 +102,6 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<HoursOffFundExpiredDetailItem>> GetExpiredDetailAsync(string tenantId, string companyId, string userId, int year, int month)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);

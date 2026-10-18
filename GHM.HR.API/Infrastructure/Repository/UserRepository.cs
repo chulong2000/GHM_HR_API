@@ -28,10 +28,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserSearchViewModel>> SelectAllAsync(string tenantId, string companyId, DateTime? contractExpirationDate)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -42,10 +38,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserSearchAllViewModel>> SelectAllUsersAsync(string tenantId, string companyId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -55,10 +47,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserBirthdayViewModel>> SearchUserBirthdayAsync(string tenantId, string companyId, int? month)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -70,10 +58,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserResignedViewModel>> SearchUserResignedAsync(string tenantId, string companyId, bool isAll, int month)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -86,10 +70,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserSearchViewModel>> SelectAllUsersByCompanyDepartmentAsync(string tenantId, string companyId, int departmentId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -100,10 +80,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserSearchViewModel>> SelectAllUsersByFineFormulaAsync(string tenantId, string companyId, string fineFormulaId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -115,11 +91,6 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> InsertAsync(User users)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", users.Id);
                 param.Add("@Code", users.Code);
@@ -208,7 +179,6 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@PersonnelStatus", users.PersonnelStatus);
                 param.Add("@ExpireDays", users.ExpireDays);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Insert]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
@@ -225,9 +195,9 @@ namespace GHM.HR.Infrastructure.Repository
                 return new List<string>();
 
             var insertedIds = new List<string>();
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
+            
+            
+                
 
             for (var startIndex = 0; startIndex < users.Count; startIndex += bulkBatchSize)
             {
@@ -409,11 +379,6 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> UpdateAsync(User users)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", users.Id);
                 param.Add("@TenantId", users.TenantId);
@@ -499,24 +464,17 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@PersonnelStatus", users.PersonnelStatus);
                 param.Add("@ExpireDays", users.ExpireDays);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Update]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> DeleteAsync(User user)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", user.Id);
                 param.Add("@DeleteUserId", user.DeleteUserId);
                 param.Add("@DeleteFullName", user.DeleteFullName);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_DeleteByID]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
@@ -524,26 +482,16 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> ForceDeleteAsync(string tenantId, string id)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", id);
                 param.Add("@TenantId", tenantId);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_ForceDeleteByID]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
 
         public async Task<User> GetInfoAsync(string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@Id", id);
             return await con.QuerySingleOrDefaultAsync<User>("[dbo].[spUser_SelectByID]", param, commandType: CommandType.StoredProcedure);
@@ -552,10 +500,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<User> GetInfoAsync(string tenantId, string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@Id", id);
             param.Add("@TenantId", tenantId);
@@ -564,10 +508,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<User> GetInfoByUserHisAsync(string companyId, string referenceId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@CompanyId", companyId);
             param.Add("@ReferenceId", referenceId);
@@ -576,10 +516,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsAsync(string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id = @Id AND IsDelete = 0), 1, 0)";
 
@@ -590,10 +526,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByTenantIdAsync(string tenantId, string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id = @Id AND TenantId = @TenantId AND IsDelete = 0), 1, 0)";
 
@@ -604,10 +536,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByTenantIdActiveAsync(string tenantId, string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id = @Id AND TenantId = @TenantId AND IsActive = 1 AND IsDelete = 0), 1, 0)";
 
@@ -617,10 +545,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByCodeAsync(string tenantId, string id, string code)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND Code = @Code), 1, 0)";
 
@@ -630,10 +554,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByReferenceIdAsync(string tenantId, string id, string referenceId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0  AND ReferenceId = @ReferenceId), 1, 0)";
 
@@ -643,10 +563,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByEmailAsync(string tenantId, string id, string email)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0  AND Email = @Email), 1, 0)";
 
@@ -656,10 +572,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByPhoneNumberAsync(string tenantId, string id, string phoneNumber)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0  AND PhoneNumber = @PhoneNumber), 1, 0)";
 
@@ -670,10 +582,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByUserNameAsync(string tenantId, string id, string userName)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND UserName = @UserName), 1, 0)";
 
@@ -683,10 +591,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByIdCardNumberAsync(string tenantId, string id, string idCardNumber)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND IdCardNumber = @IdCardNumber), 1, 0)";
 
@@ -696,10 +600,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByPassportIdAsync(string tenantId, string id, string passportId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND PassportId = @PassportId), 1, 0)";
 
@@ -709,10 +609,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<int> GetTotalUserByPosition(string tenantId, string positionId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT COUNT(*) FROM Users WHERE TenantId = @TenantId AND IsDelete = 0 AND PositionId = @PositionId";
 
@@ -722,10 +618,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByEnrollNumberAsync(string tenantId, string id, int enrollNumber)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND EnrollNumber = @EnrollNumber), 1, 0)";
 
@@ -735,10 +627,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByCardNumberAsync(string tenantId, string id, string cardNumber)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsDelete = 0 AND CardNumber = @CardNumber), 1, 0)";
 
@@ -748,10 +636,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsPositonByUserAsync(string tenantId, string positionId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (
                         EXISTS (SELECT 1 FROM Users WHERE TenantId = @TenantId AND IsDelete = 0 AND PositionId = @PositionId)
@@ -764,10 +648,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsTitleByUserAsync(string tenantId, string titleId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE TenantId = @TenantId AND IsDelete = 0 AND TitleId = @TitleId), 1, 0)";
 
@@ -777,10 +657,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsDepartmentByUserAsync(string tenantId, int departmentId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (
                         EXISTS (SELECT 1 FROM Users WHERE TenantId = @TenantId AND IsDelete = 0 AND DepartmentId = @DepartmentId)
@@ -793,10 +669,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<string> GetCodeAsync(string tenantId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             return await con.ExecuteScalarAsync<string>("[dbo].[spUser_Code]", param, commandType: CommandType.StoredProcedure);
@@ -804,10 +676,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<SearchResult<UserSearchViewModel>> SearchIsTechAsync(string tenantId, string branchId, string keyword, int? officeId, int page, int pageSize)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@BranchId", branchId);
@@ -828,11 +696,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByCountryIdAsync(string countryId)
         {
-
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE CountryId = @CountryId AND IsDelete = 0), 1, 0)";
 
@@ -842,10 +705,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByProvinceIdAsync(string provinceId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE ProvinceId = @ProvinceId AND IsDelete = 0), 1, 0)";
 
@@ -855,10 +714,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByDistrictIdAsync(string districtId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE DistrictId = @DistrictId AND IsDelete = 0), 1, 0)";
 
@@ -868,10 +723,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByNationIdAsync(string nationId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE NationId = @NationId AND IsDelete = 0), 1, 0)";
 
@@ -881,10 +732,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByReligionIdAsync(string religionId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE ReligionId = @ReligionId AND IsDelete = 0), 1, 0)";
 
@@ -894,10 +741,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckExistsByJobIdAsync(string jobId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE JobId = @JobId AND IsDelete = 0), 1, 0)";
 
@@ -908,44 +751,28 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> UpdateByUserFullNameAsync(string userId, string userFullName)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@UserId", userId);
                 param.Add("@UserFullName", userFullName);
 
                 rowAffected = await con.ExecuteAsync("[dbo].[Update_By_UserFullName]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> UpdateByUserUsedAsync(string userId, string userFullName, string phoneNumber)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@UserId", userId);
                 param.Add("@UserFullName", userFullName);
                 param.Add("@PhoneNumber", phoneNumber);
 
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_UpdateByUserUsed]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<bool> CheckExistsIsLockAsync(string tenantId, string id)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Users WHERE Id != @Id AND TenantId = @TenantId AND IsLock = 1 AND IsDelete = 0), 1, 0)";
 
@@ -956,44 +783,27 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> UpdateLockAsync(string id, bool isLock)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", id);
                 param.Add("@IsLock", isLock);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Update_Lock]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> UpdatePhoneNumberAsync(string userId, string phoneNumber)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@UserId", userId);
                 param.Add("@PhoneNumber", phoneNumber);
 
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Update_PhoneNumber]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> UpdateUserPaperInfoAsync(UserPaperInfo user)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", user.Id);
                 param.Add("@TenantId", user.TenantId);
@@ -1011,7 +821,6 @@ namespace GHM.HR.Infrastructure.Repository
                 }
                 param.Add("@IdCardPlaceOfIssue", user.IdCardPlaceOfIssue);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Update_PaperInfo]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
@@ -1019,11 +828,6 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> UpdateUserOtherInfoAsync(UserOtherInfo user)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@Id", user.Id);
                 param.Add("@TenantId", user.TenantId);
@@ -1036,17 +840,12 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@EnrollNumberTT", user.EnrollNumberTT);
                 param.Add("@TaxCode", user.TaxCode);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_Update_OtherInfo]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
 
         public async Task<List<UserDetailAllViewModel>> GetUsersByCompanyIdAndRoleId(string tenantId, string companyId, string roleId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1058,10 +857,6 @@ namespace GHM.HR.Infrastructure.Repository
         // danh sach user dang lam viec
         public async Task<List<UserSearchAllViewModel>> SelectAllCurrentAsync(string tenantId, string companyId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1072,15 +867,9 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> UpdateManagerUserAysnc(string userId)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@UserId", userId);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUser_UpdateManagerUser]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
@@ -1088,27 +877,17 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> DayOffsUpdateUsedAsync(string tenantId, string userId, DateTime date, int minutes)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@UserId", userId);
                 param.Add("@Date", date);
                 param.Add("@Minutes", minutes);
                 rowAffected = await con.ExecuteAsync("[dbo].[spDayOffs_Update_Used]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<bool> DayOffsCheckUserExist(string tenantId, string companyId, string userId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM DayOffs WHERE TenantId = @TenantId AND CompanyId = @CompanyId AND UserId = @UserId), 1, 0)"
             ;
@@ -1120,11 +899,6 @@ namespace GHM.HR.Infrastructure.Repository
         public async Task<int> DayOffsUpdateOldExpiryDateAsync(string tenantId, string companyId, string id, DateTime? expiryDate, DateTime? oldExpiryDate, string lastUpdateUserId, string lastUpdateFullName)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@CompanyId", companyId);
@@ -1134,18 +908,12 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@LastUpdateUserId", lastUpdateUserId);
                 param.Add("@LastUpdateFullName", lastUpdateFullName);
                 rowAffected = await con.ExecuteAsync("[dbo].[spDayOffs_UpdateOldExpiryDate]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> DayOffsUpdateRemainingLeaveDaysAsync(string tenantId, string companyId, string userId, int unusedLeave, string lastUpdateUserId, string lastUpdateFullName)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@CompanyId", companyId);
@@ -1154,51 +922,34 @@ namespace GHM.HR.Infrastructure.Repository
                 param.Add("@LastUpdateUserId", lastUpdateUserId);
                 param.Add("@LastUpdateFullName", lastUpdateFullName);
                 rowAffected = await con.ExecuteAsync("[dbo].[spDayOffs_UpdateRemainingLeaveDays]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> DayOffsUpdateUsedLeaveDaysAsync(string tenantId, string companyId, string userId, decimal totalDate)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@CompanyId", companyId);
                 param.Add("@UserId", userId);
                 param.Add("@TotalDate", totalDate);
                 rowAffected = await con.ExecuteAsync("[dbo].[spDayOffs_UpdateUsedLeaveDays]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<int> DayOffs_DeleteByUserAsync(string tenantId, string companyId, string userId)
         {
             int rowAffected = 0;
-            using (SqlConnection con = new(_connectionString))
-            {
-                if (con.State == ConnectionState.Closed)
-                    await con.OpenAsync();
-
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@CompanyId", companyId);
                 param.Add("@UserId", userId);
                 rowAffected = await con.ExecuteAsync("[dbo].[spUsersDayOffs_DeleteByUserId]", param, commandType: CommandType.StoredProcedure);
-            }
             return rowAffected;
         }
 
         public async Task<List<TempTable>> GetAllUsers(string tenantId, string companyId, string userId, string managerUserId, string managerUserIdOld, string creatorId, string creatorFullName)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1213,10 +964,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<User> GetInfoMultiAsync(string companyId, string userId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@CompanyId", companyId);
             param.Add("@UserId", userId);
@@ -1225,10 +972,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<string>> GetListQLNSAsync(string tenantId, string companyId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1238,10 +981,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<int> UpdateDepartmentIsActiveAsync(string tenantId, string companyId, int departmentId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"UPDATE Users
                             SET DepartmentId = NULL, DepartmentName = NULL
                             WHERE TenantId=@TenantId AND CompanyId=@CompanyId AND DepartmentId=@DepartmentId";
@@ -1251,10 +990,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<User> GetUserByDoctorCodeAsync(string companyId, string doctorCode)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@CompanyId", companyId);
             param.Add("@DoctorCode", doctorCode);
@@ -1263,10 +998,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<bool> CheckSameDepartmentAsync(string tenantId, string userId1, string userId2)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             var sql = @"
                     SELECT IIF(EXISTS (
                         SELECT 1
@@ -1304,10 +1035,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserSendMoreToViewModel>> GetListSendMoreToasync(string tenantId, string companyId, string userId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1319,10 +1046,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserWorkScheduleViewModel>> GetWorkScheduleasync(string tenantId, string companyId, string userId, DateTime date)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1335,10 +1058,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<UserDayOffViewModel> GetDayoffAsync(string tenantId, string userId, DateTime startDate)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@UserId", userId);
@@ -1347,11 +1066,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserBirthdayViewModel>> GetListUsersBirthdayInMonth(string tenantId, string companyId, int? month)
         {
-
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1363,10 +1077,6 @@ namespace GHM.HR.Infrastructure.Repository
 
         public async Task<List<UserResignedViewModel>> GetListUsersResignInMonth(string tenantId, string companyId, int? month)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -1381,10 +1091,6 @@ namespace GHM.HR.Infrastructure.Repository
                                                              string userId,
                                                              string managerId)
         {
-            using SqlConnection con = new(_connectionString);
-            if (con.State == ConnectionState.Closed)
-                await con.OpenAsync();
-
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
