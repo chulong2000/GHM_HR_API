@@ -1,6 +1,6 @@
 ﻿
 
-ALTER   PROCEDURE [dbo].[spWorkSchedule_Insert]
+ALTER PROCEDURE [dbo].[spWorkSchedule_Insert]
 (
     @Id AS uniqueidentifier = Null,
     @WorkDay AS DateTime = NULL,
@@ -15,7 +15,13 @@ ALTER   PROCEDURE [dbo].[spWorkSchedule_Insert]
 )
 AS
 BEGIN
-    
+    DECLARE @HolidayId uniqueidentifier = Null;
+
+	SELECT @HolidayId = h.Id
+    FROM dbo.Holidays AS h
+    WHERE CAST(@WorkDay AS DATE) BETWEEN CAST(h.FromDay AS DATE) AND CAST(h.ToDay AS DATE)
+    ORDER BY h.FromDay;
+
 	INSERT INTO [dbo].[WorkSchedule]
            ([Id]
            ,[WorkDay]
@@ -26,7 +32,8 @@ BEGIN
            ,[CreateFullName]
            ,[CompanyId]
            ,[TenantId]
-           ,[Year])
+           ,[Year]
+		   ,[HolidayId])
      VALUES
            (@Id
            ,@WorkDay
@@ -37,8 +44,8 @@ BEGIN
            ,@CreateFullName
            ,@CompanyId
            ,@TenantId
-           ,@Year)
-  
+           ,@Year
+		   ,@HolidayId)
 END
 
 ALTER   PROCEDURE [dbo].[spWorkSchedule_SelectWorkDayByMonth]
