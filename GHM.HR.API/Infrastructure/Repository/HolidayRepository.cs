@@ -24,25 +24,28 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<bool> checkNameExists(string tenantId, string companyId, string name, string holidayId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
             param.Add("@HolidayId", holidayId);
             param.Add("@Name", name);
 
-            var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, commandType: CommandType.StoredProcedure);
+            var result = await con.QueryFirstOrDefaultAsync<bool>("[dbo].[spHoliday_CheckNameExists]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return result;
         }
 
         public async Task<int> DeleteAsync(Holiday holiday)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
-                DynamicParameters param = new();
-                param.Add("@Id", holiday.Id);
-                param.Add("@DeleteUserId", holiday.DeleteUserId);
-                param.Add("@DeleteFullName", holiday.DeleteFullName);
-                param.Add("@DeleteTime", holiday.DeleteTime);
-                rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_DeleteByID]", param, commandType: CommandType.StoredProcedure);
+
+            DynamicParameters param = new();
+            param.Add("@Id", holiday.Id);
+            param.Add("@DeleteUserId", holiday.DeleteUserId);
+            param.Add("@DeleteFullName", holiday.DeleteFullName);
+            param.Add("@DeleteTime", holiday.DeleteTime);
+            rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_DeleteByID]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
@@ -52,14 +55,14 @@ namespace GHM.HR.API.Infrastructure.Repository
 
             DynamicParameters param = new();
             param.Add("@Id", id);
-            return await con.QuerySingleOrDefaultAsync<Holiday>("[dbo].[spHoliday_SelectByID]", param, commandType: CommandType.StoredProcedure);
+            return await con.QuerySingleOrDefaultAsync<Holiday>("[dbo].[spHoliday_SelectByID]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> InsertAsync(Holiday holiday)
         {
-            int rowAffected = 0;
             var con = await _dbSession.GetConnectionAsync();
 
+            int rowAffected = 0;
             DynamicParameters param = new();
             param.Add("@Id", holiday.Id);
             param.Add("@TenantId", holiday.TenantId);
@@ -76,23 +79,23 @@ namespace GHM.HR.API.Infrastructure.Repository
             param.Add("@LastUpdateFullName", holiday.LastUpdateFullName);
             param.Add("@IsDelete", holiday.IsDelete);
 
-            rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_Insert]", param, commandType: CommandType.StoredProcedure);
+            rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_Insert]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<List<HolidayViewModel>> SelectAllAsync(string tenantId, string companyId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
-            var results = await con.QueryAsync<HolidayViewModel>("[dbo].[spHoliday_SelectAll]", param, commandType: CommandType.StoredProcedure);
+            var results = await con.QueryAsync<HolidayViewModel>("[dbo].[spHoliday_SelectAll]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return results.ToList();
         }
 
         public async Task<int> UpdateAsync(Holiday holiday)
         {
             int rowAffected = 0;
-
             var con = await _dbSession.GetConnectionAsync();
 
             DynamicParameters param = new();
@@ -109,8 +112,7 @@ namespace GHM.HR.API.Infrastructure.Repository
             param.Add("@IsDelete", false);
 
             rowAffected = await con.ExecuteAsync("[dbo].[spHoliday_Update]", param,
-                transaction: _dbSession.Transaction,
-                commandType: CommandType.StoredProcedure);
+                transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
 
             return rowAffected;
         }

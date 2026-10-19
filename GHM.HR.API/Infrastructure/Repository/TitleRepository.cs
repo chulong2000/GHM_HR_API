@@ -2,6 +2,7 @@
 using GHM.HR.API.Domain.IRepository;
 using GHM.HR.API.Domain.Models;
 using GHM.HR.API.Domain.ViewModels;
+using GHM.HR.API.Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -11,32 +12,37 @@ namespace GHM.HR.API.Infrastructure.Repository
     {
         private readonly string _connectionString;
         private readonly ILogger<TitleRepository> _logger;
-        public TitleRepository(string connectionString, ILogger<TitleRepository> logger)
+        private readonly IDbSession _dbSession;
+        public TitleRepository(string connectionString, ILogger<TitleRepository> logger, IDbSession dbSession)
         {
             _connectionString = connectionString;
             _logger = logger;
+            _dbSession = dbSession;
         }
 
         public async Task<List<TitleSearchViewModel>> SelectAllAsync(string tenantId, string companyId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
-            var results = await con.QueryAsync<TitleSearchViewModel>("[dbo].[spTitle_SelectAll]", param, commandType: CommandType.StoredProcedure);
+            var results = await con.QueryAsync<TitleSearchViewModel>("[dbo].[spTitle_SelectAll]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return results.ToList();
         }
 
         public async Task<List<TitleSearchViewModel>> SelectAllTitleActiveAsync(string tenantId, string companyId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
-            var results = await con.QueryAsync<TitleSearchViewModel>("[dbo].[spTitle_SelectAll_Active]", param, commandType: CommandType.StoredProcedure);
+            var results = await con.QueryAsync<TitleSearchViewModel>("[dbo].[spTitle_SelectAll_Active]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return results.ToList();
         }
 
         public async Task<int> InsertAsync(Title title)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@Id", title.Id);
@@ -64,12 +70,13 @@ namespace GHM.HR.API.Infrastructure.Repository
                 }
                 param.Add("@DeleteUserId", title.DeleteUserId);
                 param.Add("@DeleteFullName", title.DeleteFullName);
-                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Insert]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Insert]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<int> UpdateAsync(Title title)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@Id", title.Id);
@@ -97,39 +104,43 @@ namespace GHM.HR.API.Infrastructure.Repository
                 }
                 param.Add("@DeleteUserId", title.DeleteUserId);
                 param.Add("@DeleteFullName", title.DeleteFullName);
-                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Update]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Update]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
         public async Task<int> DeleteAsync(Title title)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@Id", title.Id);
                 param.Add("@DeleteUserId", title.DeleteUserId);
                 param.Add("@DeleteFullName", title.DeleteFullName);
-                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_DeleteByID]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_DeleteByID]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<int> ForceDeleteAsync(string companyId, string id)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@CompanyId", companyId);
                 param.Add("@Id", id);
-                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_ForceDeleteByID]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_ForceDeleteByID]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<Title> GetInfoAsync(string id)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@Id", id);
-            return await con.QuerySingleOrDefaultAsync<Title>("[dbo].[spTitle_SelectByID]", param, commandType: CommandType.StoredProcedure);
+            return await con.QuerySingleOrDefaultAsync<Title>("[dbo].[spTitle_SelectByID]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> CheckExistsNameAsync(string tenantId, string companyId, string name)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Titles WHERE CompanyId = @CompanyId AND TenantId = @TenantId AND Name = @Name AND IsDelete = 0), 1, 0)";
 
@@ -139,6 +150,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<bool> CheckExistsCodeAsync(string tenantId, string companyId, string code, string id)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Titles WHERE CompanyId = @CompanyId AND TenantId = @TenantId AND Code = @Code AND IsDelete = 0 and Id != @Id), 1, 0)";
 
@@ -148,6 +160,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<bool> CheckExistByNameAsync(string tenantId, string companyId, string id, string name)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Titles WHERE Id != @Id AND CompanyId = @CompanyId AND TenantId = @TenantId AND Name = @Name AND IsDelete = 0), 1, 0)";
 
@@ -157,6 +170,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<int> UpdateByTitleNameAsync(string tenantId, string companyId, string titleId, string titleName)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
@@ -164,12 +178,13 @@ namespace GHM.HR.API.Infrastructure.Repository
                 param.Add("@TitleId", titleId);
                 param.Add("@TitleName", titleName);
 
-                rowAffected = await con.ExecuteAsync("[dbo].[Update_By_TitleName]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[Update_By_TitleName]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<bool> CheckExistsAsync(string companyId, string id)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					SELECT IIF (EXISTS (SELECT 1 FROM Titles WHERE Id = @Id AND CompanyId = @CompanyId AND IsDelete = 0), 1, 0)";
 
@@ -179,17 +194,19 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<int> UpdateIsActive(string companyId, string id, bool isActive)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@CompanyId", companyId);
                 param.Add("@Id", id);
                 param.Add("@IsActive", isActive);
-                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Update_IsActive]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spTitle_Update_IsActive]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<string> GetCode(string id)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					SELECT Code FROM Titles WHERE Id=@Id AND IsDelete=0 AND IsActive=1";
 

@@ -2,6 +2,7 @@
 using GHM.HR.API.Domain.IRepository;
 using GHM.HR.API.Domain.Models;
 using GHM.HR.API.Domain.ViewModels;
+using GHM.HR.API.Infrastructure.Data;
 using GHM.HR.Domain.Models;
 using GHM.HR.Domain.ViewModels;
 using Microsoft.AspNetCore.Connections;
@@ -17,14 +18,17 @@ namespace GHM.HR.API.Infrastructure.Repository
     {
         private readonly string _connectionString;
         private readonly ILogger<DepartmentRepository> _logger;
+        private readonly IDbSession _dbSession;
 
-        public MultiCompanyRepository(string connectionString, ILogger<DepartmentRepository> logger)
+        public MultiCompanyRepository(string connectionString, ILogger<DepartmentRepository> logger, IDbSession dbSession)
         {
             _connectionString = connectionString;
             _logger = logger;
+            _dbSession = dbSession;
         }
         public async Task<bool> CheckExistDoctorCodeAsync(string tenantId, string companyId, string doctorCode)
         {
+            var con = await _dbSession.GetConnectionAsync();
             var sql = @"
 					 SELECT IIF (EXISTS (SELECT 1 FROM dbo.MultipleCompanys WHERE TenantId = @TenantId AND DoctorCode = @DoctorCode AND CompanyId = @CompanyId), 1, 0)";
 
@@ -34,6 +38,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task<List<string>> InsertBulkAsync(List<MultiCompany> multiCompanies)
         {
+            var con = await _dbSession.GetConnectionAsync();
             const int bulkBatchSize = 1000;
             const int bulkCommandTimeoutSeconds = 300;
 
@@ -56,7 +61,7 @@ namespace GHM.HR.API.Infrastructure.Repository
                 var batchIds = await con.QueryAsync<string>(new CommandDefinition(
                     "[dbo].[spMultiCompany_InsertBulk]", param,
                     commandTimeout: bulkCommandTimeoutSeconds,
-                    commandType: CommandType.StoredProcedure));
+                    transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure));
 
                 insertedIds.AddRange(batchIds);
             }
@@ -107,46 +112,51 @@ namespace GHM.HR.API.Infrastructure.Repository
 
         public async Task InsertMultiCompanyAsync(string tenantId, string userId, string creatorId, string creatorFullName, DataTable dataTable)
         {
+            var con = await _dbSession.GetConnectionAsync();
                 DynamicParameters param = new();
                 param.Add("@TenantId", tenantId);
                 param.Add("@UserId", userId);
                 param.Add("@CreatorId", creatorId);
                 param.Add("@CreatorFullName", creatorFullName);
                 param.Add("@List", dataTable.AsTableValuedParameter("[dbo].[MultipleCompanyType]"));
-                await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertByTableType]", param, commandType: CommandType.StoredProcedure);
+                await con.ExecuteAsync("[dbo].[spMultipleCompanys_InsertByTableType]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<MultipleCompanySearchViewModel>> GetMultiCompaniesAsync(string tenantId, string companyId, string userId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
             param.Add("@UserId", userId);
-            var results = await con.QueryAsync<MultipleCompanySearchViewModel>("[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]", param, commandType: CommandType.StoredProcedure);
+            var results = await con.QueryAsync<MultipleCompanySearchViewModel>("[dbo].[spMultipleCompanys_SearchMultiCompanyForUser]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return results.ToList();
         }
 
         public async Task<int> ForceDeleteByUserIdAsync(string tenantId, string userId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             int rowAffected = 0;
                 DynamicParameters param = new();
                 param.Add("@UserId", userId);
                 param.Add("@TenantId", tenantId);
-                rowAffected = await con.ExecuteAsync("[dbo].[spMultiCompany_ForceDeleteByUserId]", param, commandType: CommandType.StoredProcedure);
+                rowAffected = await con.ExecuteAsync("[dbo].[spMultiCompany_ForceDeleteByUserId]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return rowAffected;
         }
 
         public async Task<List<MultiCompany>> GetInfoAsync(string tenantId, string userId)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@UserId", userId);
             param.Add("@TenantId", tenantId);
-            var results = await con.QueryAsync<MultiCompany>("[dbo].[spMultiCompany_GetAllCompanyOfUser]", param, commandType: CommandType.StoredProcedure);
+            var results = await con.QueryAsync<MultiCompany>("[dbo].[spMultiCompany_GetAllCompanyOfUser]", param, transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             return results.ToList();
         }
 
         public async Task<CheckDoctorCodeResult> CheckDoctorCode(string tenantId, string companyId, DataTable dataTable)
         {
+            var con = await _dbSession.GetConnectionAsync();
             DynamicParameters param = new();
             param.Add("@TenantId", tenantId);
             param.Add("@CompanyId", companyId);
@@ -155,7 +165,7 @@ namespace GHM.HR.API.Infrastructure.Repository
 
             var results = await con.QueryAsync<DoctorCodeDuplicateDto>(
                                            "dbo.spMultipleCompanys_CheckDoctorCode", param,
-                                            commandType: CommandType.StoredProcedure);
+                                            transaction: _dbSession.Transaction, commandType: CommandType.StoredProcedure);
             var count = param.Get<int>("@DuplicateCount");
 
             return new CheckDoctorCodeResult(count, results.ToList());
