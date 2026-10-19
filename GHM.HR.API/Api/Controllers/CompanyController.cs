@@ -39,7 +39,8 @@ namespace GHM.HR.Api.Controllers
         [Route("get-all"), AcceptVerbs("GET")]
         public async Task<IActionResult> SelectAllAsync()
         {
-            var result = await _companyService.SelectAllAsync(CurrentUser.TenantId);
+            string tenantId = "DAE13DF6-6720-4BDA-A61C-61E5E948017E";
+            var result = await _companyService.SelectAllAsync(tenantId);
             return Ok(result);
         }
 

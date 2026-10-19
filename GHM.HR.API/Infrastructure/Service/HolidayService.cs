@@ -51,17 +51,12 @@ namespace GHM.HR.API.Infrastructure.Service
             {
                 await _dbSession.BeginTransactionAsync();
 
-                var result = await _holidayRepository.DeleteAsync(info);
+                await _holidayRepository.DeleteAsync(info);
 
-                if (result <= 0)
-                    return new ActionResultResponse(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
-
-                result = await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreateOrDelete(info.TenantId.ToString(), info.CompanyId.ToString(), info.FromDay, info.ToDay, null);
-                if (result < 0)
-                    return new ActionResultResponse(result, _ghmHRResource.GetString(ErrorMessage.SomethingWentWrong));
-
+                await _workScheduleRepository.UpdateWorkSchedulewhenHolidayCreateOrDelete(info.TenantId.ToString(), info.CompanyId.ToString(), info.FromDay, info.ToDay, null);
                 await _dbSession.CommitAsync();
-                return new ActionResultResponse(result, _ghmHRResource.GetString(SuccessMessage.DeleteSuccessful, _ghmHRResource.GetString("Holiday")));
+
+                return new ActionResultResponse(1, _ghmHRResource.GetString(SuccessMessage.DeleteSuccessful, _ghmHRResource.GetString("Holiday")));
             }
             catch (Exception ex)
             {
